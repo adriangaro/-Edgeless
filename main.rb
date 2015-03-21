@@ -1,18 +1,20 @@
 require 'gosu'
+require_relative 'player'
 
 class GameWindow < Gosu::Window
   def initialize
     super 640, 480, false
     self.caption = "Game Dev"
 
-    @ball = Gosu::Image.new self, "resources/images/ball.png", true
+    @ball = Player.new self
   end
 
   def update
+    @ball.warp 150, 50
   end
 
   def draw
-    @ball.draw 0, 0, 0
+    @ball.draw
   end
 end
 
