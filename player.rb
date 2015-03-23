@@ -33,29 +33,14 @@ class Player
     @shape.body.t += 600.0/SUBSTEPS
   end
 
-  def accelerate
-      @shape.body.apply_force((@shape.body.a.radians_to_vec2 * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
-  end
-
-  def boost_left
-    @shape.body.apply_force((CP::Vec2.new(-1.0,0.0) * (3000.0)), CP::Vec2.new(0.0, 0.0))
-  end
-
   def accelerate_left
     @shape.body.apply_force((CP::Vec2.new(-1.0,0.0) * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
-  end
-
-  def boost_right
-    @shape.body.apply_force((CP::Vec2.new(1.0,0.0) * (3000.0)), CP::Vec2.new(0.0, 0.0))
   end
 
   def accelerate_right
     @shape.body.apply_force((CP::Vec2.new(1.0,0.0) * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
   end
 
-  def boost
-    @shape.body.apply_force((@shape.body.a.radians_to_vec2 * (3000.0)), CP::Vec2.new(0.0, 0.0))
-  end
   def validate_position
     l_position = CP::Vec2.new(@shape.body.p.x % 640, @shape.body.p.y % 480)
     @shape.body.p = l_position
