@@ -1,17 +1,18 @@
 require 'gosu'
 require 'chipmunk'
 require_relative 'chip-gosu-functions'
+require_relative 'obj'
 
 SUBSTEPS = 6
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
-class Player
-  attr_reader :body, :shape
-  def initialize(window)
-    @image = Gosu::Image.new window, "resources/images/ball.png"
-    @body = CP::Body.new(20.0, 150.0)
+class Player < Obj
+  def initialize(window, g, source)
+    super window, g, source
 
+    @body = CP::Body.new(20.0, 150.0)
     @shape = CP::Shape::Circle.new(body, 64, CP::Vec2.new(0,0))
+
     @shape.body.p = CP::Vec2.new(0.0, 0.0)
     @shape.body.v = CP::Vec2.new(0.0, 0.0)
     @shape.e = 1
