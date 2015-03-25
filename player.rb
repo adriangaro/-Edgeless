@@ -1,24 +1,23 @@
 require 'gosu'
 require 'chipmunk'
 require_relative 'chip-gosu-functions'
+require_relative 'obj'
 
 SUBSTEPS = 6
-
-class Player
-  attr_reader :shape, :body
-
-  def initialize(window)
-    @image = Gosu::Image.new window, "resources/images/ball.png"
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
+class Player < Obj
+  def initialize(window, g, source)
+    super window, g, source
 
     @body = CP::Body.new(20.0, 150.0)
-
     @shape = CP::Shape::Circle.new(body, 64, CP::Vec2.new(0,0))
-    @shape.collision_type = :ball
 
     @shape.body.p = CP::Vec2.new(0.0, 0.0)
     @shape.body.v = CP::Vec2.new(0.0, 0.0)
+    @shape.e = 1
     @shape.body.a = (3*Math::PI/2.0)
-    @shape.e = 2
+    @shape.collision_type = :ball
   end
 
   def warp(vect)
@@ -34,15 +33,15 @@ class Player
   end
 
   def accelerate_left
-    @shape.body.apply_force((CP::Vec2.new(-1.0,0.0) * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
+    @shape.body.apply_force((CP::Vec2.new(-1.0, 0.0) * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
   end
 
   def accelerate_right
-    @shape.body.apply_force((CP::Vec2.new(1.0,0.0) * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
+    @shape.body.apply_force((CP::Vec2.new(1.0, 0.0) * (3000.0/SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
   end
 
   def validate_position
-    l_position = CP::Vec2.new(@shape.body.p.x % 640, @shape.body.p.y % 480)
+    l_position = CP::Vec2.new(@shape.body.p.x % SCREEN_WIDTH, @shape.body.p.y % SCREEN_HEIGHT)
     @shape.body.p = l_position
   end
 
