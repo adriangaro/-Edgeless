@@ -7,9 +7,9 @@ SUBSTEPS = 6
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 class Player < Obj
+  attr_accessor :j
   def initialize(window, g, source)
     super window, g, source
-
     @body = CP::Body.new(20.0, 150.0)
     @shape = CP::Shape::Circle.new(body, 64, CP::Vec2.new(0,0))
 
@@ -43,6 +43,10 @@ class Player < Obj
   def validate_position
     l_position = CP::Vec2.new(@shape.body.p.x % SCREEN_WIDTH, @shape.body.p.y % SCREEN_HEIGHT)
     @shape.body.p = l_position
+  end
+
+  def jump
+    @shape.body.apply_force((CP::Vec2.new(0.0, -1.0) * (50000.0)), CP::Vec2.new(0.0, 0.0)) if @j
   end
 
   def draw
