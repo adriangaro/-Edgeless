@@ -1,7 +1,9 @@
 require 'gosu'
 require 'chipmunk'
 require_relative 'player'
+require_relative 'spike'
 require_relative 'obj'
+require_relative 'collision-handlers'
 require_relative 'platform'
 require_relative 'chip-gosu-functions'
 
@@ -17,37 +19,37 @@ class GameWindow < Gosu::Window
     @space = CP::Space.new
     @space.damping = 0.8
 
-    @player = Player.new self, true, "resources/images/ball.png"
-    @platform = Platform.new self, false, "resources/images/platform.png", 320, 50
-    @platform2 = Platform.new self, false, "resources/images/platform.png", 320, 50, 20
-    @platform3 = Platform.new self, false, "resources/images/platform.png", 320, 50, -20
+    @player = Player.new self, true, 30
+    @platform = Platform.new self, false, 320, 50
+    @platform2 = Platform.new self, false, 320, 50, 20
+    @platform3 = Platform.new self, false, 320, 50, -20
+    @spikes = Spike.new self, false, 200, 100
 
-    @space.add_body(@player.body)
-    @space.add_body(@platform.body)
-    @space.add_body(@platform2.body)
-    @space.add_body(@platform3.body)
-
-    @space.add_shape(@player.shape)
-    @space.add_shape(@platform.shape)
-    @space.add_shape(@platform2.shape)
-    @space.add_shape(@platform3.shape)
+    @player.add_to_space @space
+    @platform.add_to_space @space
+    @platform2.add_to_space @space
+    @platform3.add_to_space @space
+    @spikes.add_to_space @space
 
     @objects << @player
     @objects << @platform
     @objects << @platform2
     @objects << @platform3
+    @objects << @spikes
 
     @player.warp CP::Vec2.new 520, 240
     @platform.warp CP::Vec2.new 0, 300
     @platform2.warp CP::Vec2.new 320, 300
     @platform3.warp CP::Vec2.new 320, 410
+    @spikes.warp CP::Vec2.new 100, 200
 
-    @space.add_collision_handler :ball, :platform, PlayerCollisionHandler.new(@player)
+    @space.add_collision_handler :ball, :platform, PlayerPlatformCollisionHandler.new(@player)
+    @space.add_collision_handler :ball, :spikes_p, PlayerSpikeCollisionHandler.new(@player)
   end
 
   def update
     SUBSTEPS.times do
-      @player.shape.body.reset_forces
+      @player.shapes[0].body.reset_forces
 
       @player.validate_position
 
@@ -76,29 +78,6 @@ class GameWindow < Gosu::Window
   def draw
     @objects.each do |obj|
       obj.draw
-    end
-  end
-
-  class PlayerCollisionHandler
-    def initialize(player)
-      @player = player
-    end
-
-    def begin(a, b, arbiter)
-      @player.j = true
-      true
-    end
-
-    def pre_solve(a, b)
-      true
-    end
-
-    def post_solve(arbiter)
-      true
-    end
-
-    def separate
-      @player.j = false
     end
   end
 end
