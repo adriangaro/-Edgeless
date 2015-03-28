@@ -24,8 +24,8 @@ class Obj
 
   def do_gravity(power)
     @shapes.each do |shape|
-      shape.body.apply_force((CP::Vec2.new(0.0, 1.0) * (power)),
-                             CP::Vec2.new(0.0, 0.0)) if @g
+      shape.body.apply_force((vec2(0.0, 1.0) * (power)),
+                             vec2(0.0, 0.0)) if @g
     end
   end
 end

@@ -6,3 +6,7 @@ class Numeric
     CP::Vec2.new Math::cos(self), Math::sin(self)
   end
 end
+
+def vec2(x, y)
+  CP::Vec2.new x, y
+end

@@ -16,11 +16,11 @@ class PlatformPoly < Obj
     @image = polygon_image(vertices)
 
     @body = CP::Body.new Float::INFINITY, Float::INFINITY
-    @shapes << CP::Shape::Poly.new(body, vertices, CP::Vec2.new(0, 0))
+    @shapes << CP::Shape::Poly.new(body, vertices, vec2(0, 0))
 
     @shapes.each do |shape|
-      shape.body.p = CP::Vec2.new 0.0, 0.0
-      shape.body.v = CP::Vec2.new 0.0, 0.0
+      shape.body.p = vec2 0.0, 0.0
+      shape.body.v = vec2 0.0, 0.0
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = :platform_poly
@@ -43,9 +43,9 @@ class PlatformPoly < Obj
     Gosu::Image.new @window, box_image
   end
 
-  def draw
-    @image.draw_rot(@shapes[0].body.p.x,
-                    @shapes[0].body.p.y,
+  def draw(offsetx, offsety)
+    @image.draw_rot(@shapes[0].body.p.x - offsetx,
+                    @shapes[0].body.p.y - offsety,
                     0,
                     @shapes[0].body.a.radians_to_gosu,
                     0,
