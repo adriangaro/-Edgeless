@@ -45,6 +45,7 @@ class LevelBorder < Obj
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = :border
+      shape.group = LEVEL_BORDER
     end
   end
 

@@ -21,6 +21,7 @@ class PlatformPoly < Obj
       shape.e = 0
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = :platform_poly
+      shape.group = PLATFORM
     end
   end
 

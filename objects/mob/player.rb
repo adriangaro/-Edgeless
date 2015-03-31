@@ -22,6 +22,7 @@ class Player < Mob
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = :ball
+      shape.group = PLAYER
     end
   end
 

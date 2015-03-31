@@ -43,6 +43,7 @@ class Spike < Obj
       @shapes[i].e = 0.3
       @shapes[i].body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
       @shapes[i].collision_type = :spikes
+      @shapes[i].group = SPIKE
     end
     4.times do |i|
       @shapes[i + 4].body.p = vec2 0.0, 0.0
@@ -50,6 +51,7 @@ class Spike < Obj
       @shapes[i + 4].e = 0.3
       @shapes[i + 4].body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
       @shapes[i + 4].collision_type = :spikes_p
+      @shapes[i + 4].group = SPIKE
     end
   end
 

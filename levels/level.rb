@@ -18,6 +18,11 @@ class Level
     @space = CP::Space.new
     @objects = []
     @mobs = []
+
+    declare_obj
+    warp
+    add_objects
+    add_to_space
   end
 
   def declare_obj

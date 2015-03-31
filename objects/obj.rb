@@ -3,6 +3,14 @@ require 'chipmunk'
 
 require_relative '../utility/chip-gosu-functions'
 
+LEVEL_BORDER = 1
+PLAYER = 2
+PLATFORM = 3
+SPIKE = 4
+MOB = 5
+WEAPON = 6
+WEAPON_BINDING = 7
+
 class Obj
   attr_reader :shapes, :body
   def initialize(window, source)

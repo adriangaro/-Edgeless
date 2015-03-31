@@ -9,7 +9,7 @@ class Mob < Obj
     super window, source
   end
 
-  def do_behaviour
+  def do_behaviour(_space)
   end
 
   def draw(offsetx, offsety)

@@ -18,10 +18,6 @@ class First < Level
     super window
     @space.damping = 0.8
     @space.gravity = vec2 0, 20
-    declare_obj
-    add_objects
-    add_to_space
-    warp
   end
 
   def declare_obj

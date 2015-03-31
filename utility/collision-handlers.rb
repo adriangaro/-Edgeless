@@ -77,76 +77,13 @@ class PlayerSpikeCollisionHandler
   end
 end
 
-class SwordPlatformCollisionHandler
-  def initialize(player)
-    @player = player
-  end
-
-  def begin(_a, _b, arbiter)
-    false
-  end
-
-  def pre_solve(_a, _b)
-    true
-  end
-
-  def post_solve(_arbiter)
-    true
-  end
-
-  def separate
-  end
-end
-
-class SwordPlatformPolyCollisionHandler
-  def initialize(player)
-    @player = player
-  end
-
-  def begin(_a, _b, arbiter)
-    false
-  end
-
-  def pre_solve(_a, _b)
-    true
-  end
-
-  def post_solve(_arbiter)
-    true
-  end
-
-  def separate
-  end
-end
-
-class SwordSpikeCollisionHandler
-  def initialize(player)
-    @player = player
-  end
-
-  def begin(_a, _b, arbiter)
-    false
-  end
-
-  def pre_solve(_a, _b)
-    true
-  end
-
-  def post_solve(_arbiter)
-    true
-  end
-
-  def separate
-  end
-end
-
 class SwordPlayerCollisionHandler
   def initialize(player)
     @player = player
   end
 
-  def begin(_a, _b, arbiter)
-    put 'Dead'
+  def begin(_a, _b, _arbiter)
+    puts 'Dead'
     true
   end
 
@@ -156,6 +93,27 @@ class SwordPlayerCollisionHandler
 
   def post_solve(_arbiter)
     true
+  end
+
+  def separate
+  end
+end
+
+class NoCollisionHandler
+  def initialize(player)
+    @player = player
+  end
+
+  def begin(_a, _b, _arbiter)
+    false
+  end
+
+  def pre_solve(_a, _b)
+    false
+  end
+
+  def post_solve(_arbiter)
+    false
   end
 
   def separate

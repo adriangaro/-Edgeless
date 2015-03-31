@@ -19,16 +19,22 @@ class GameWindow < Gosu::Window
 
     @level.space.add_collision_handler :sword,
                                        :platform,
-                                       SwordPlatformCollisionHandler.new(@level.player)
+                                       NoCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :sword,
                                        :platform_poly,
-                                       SwordPlatformPolyCollisionHandler.new(@level.player)
+                                       NoCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :sword,
                                        :spikes,
-                                       SwordSpikeCollisionHandler.new(@level.player)
+                                       NoCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :sword,
-                                       :player,
+                                       :border,
+                                       NoCollisionHandler.new(@level.player)
+    @level.space.add_collision_handler :sword,
+                                       :ball,
                                        SwordPlayerCollisionHandler.new(@level.player)
+    @level.space.add_collision_handler :sword,
+                                       :mob,
+                                       NoCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :ball,
                                        :platform,
                                        PlayerPlatformCollisionHandler.new(@level.player)
@@ -44,10 +50,7 @@ class GameWindow < Gosu::Window
     SUBSTEPS.times do
       @level.mobs.each do |mob|
         mob.shapes[0].body.reset_forces
-        #mob.do_gravity 400
-        mob.do_behaviour
-
-
+        mob.do_behaviour @level.space
       end
 
       if button_down? Gosu::KbLeft
@@ -59,12 +62,6 @@ class GameWindow < Gosu::Window
         @level.player.accelerate_right
       end
       @level.player.jump if button_down? Gosu::KbSpace
-
-      @level.objects.each do |obj|
-        #obj.do_gravity 400
-      end
-
-
 
       @level.space.step @dt
     end

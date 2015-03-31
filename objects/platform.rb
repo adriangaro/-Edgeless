@@ -25,6 +25,7 @@ class Platform < Obj
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
       shape.collision_type = :platform
+      shape.group = PLATFORM
     end
   end
   def draw(offsetx, offsety)
