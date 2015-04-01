@@ -15,7 +15,7 @@ class Mob < Obj
   def draw(offsetx, offsety)
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[0].body.a.radians_to_gosu,
                     0,
                     0

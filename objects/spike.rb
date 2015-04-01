@@ -43,7 +43,8 @@ class Spike < Obj
       @shapes[i].e = 0.3
       @shapes[i].body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
       @shapes[i].collision_type = :spikes
-      @shapes[i].group = SPIKE
+      @shapes[i].group = Group::SPIKE
+      @shapes[i].layers = Layer::SPIKE
     end
     4.times do |i|
       @shapes[i + 4].body.p = vec2 0.0, 0.0
@@ -51,7 +52,8 @@ class Spike < Obj
       @shapes[i + 4].e = 0.3
       @shapes[i + 4].body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
       @shapes[i + 4].collision_type = :spikes_p
-      @shapes[i + 4].group = SPIKE
+      @shapes[i + 4].group = Group::SPIKE
+      @shapes[i + 4].layers = Layer::SPIKE
     end
   end
 
@@ -60,7 +62,7 @@ class Spike < Obj
     fy = @sizey * 1.0 / @image.height
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[0].body.a.radians_to_gosu,
                     0,
                     0,

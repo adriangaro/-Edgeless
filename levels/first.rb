@@ -9,6 +9,7 @@ require_relative '../objects/platform'
 require_relative '../objects/level_border'
 require_relative '../objects/platform_poly'
 require_relative '../utility/chip-gosu-functions'
+require_relative '../objects/level_background'
 require_relative '../objects/mob/player'
 require_relative '../objects/mob/square_mob'
 
@@ -28,7 +29,17 @@ class First < Level
                               vec2(0, 1200.0),
                               vec2(0, 0)]
     @level_border = LevelBorder.new @window, 1200, 480
+
     @square_mob = SquareMob.new @window, vec2(500, 300)
+
+    @background1 = LevelBackground.new @window,
+                                       "resources/images/background1.png",
+                                       640,
+                                       480
+    @background2 = LevelBackground.new @window,
+                                       "resources/images/background2.png",
+                                       560,
+                                       480
   end
 
   def add_objects
@@ -36,15 +47,8 @@ class First < Level
     @objects << @poly
     @objects << @level_border
     @mobs << @square_mob
-  end
-
-  def add_to_space
-    @objects.each do |obj|
-      obj.add_to_space @space
-    end
-    @mobs.each do |mob|
-      mob.add_to_space @space
-    end
+    @backgrounds << @background1
+    @backgrounds << @background2
   end
 
   def warp
@@ -52,5 +56,7 @@ class First < Level
     @poly.warp vec2 0, 400
     @level_border.warp vec2 0, 0
     @square_mob.warp vec2 300, 300
+    @background1.warp vec2 0, 0
+    @background2.warp vec2 640, 0
   end
 end

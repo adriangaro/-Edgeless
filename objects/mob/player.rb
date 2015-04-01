@@ -22,7 +22,8 @@ class Player < Mob
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = :ball
-      shape.group = PLAYER
+      shape.group = Group::PLAYER
+      shape.layers = Layer::PLAYER
     end
   end
 
@@ -59,7 +60,7 @@ class Player < Mob
     f = @diameter * 1.0 / @image.width
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[0].body.a.radians_to_gosu,
                     0.5,
                     0.5,

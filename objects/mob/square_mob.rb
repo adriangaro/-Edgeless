@@ -45,14 +45,16 @@ class SquareMob < Mob
     @shapes[0].e = 0.3
     @shapes[0].body.a = 3 * Math::PI / 2.0
     @shapes[0].collision_type = :mob
-    @shapes[0].group = MOB
+    @shapes[0].group = Group::MOB
+    @shapes[0].layers = Layer::MOB
 
     @shapes[1].body.p = vec2 0.0, 0.0
     @shapes[1].body.v = vec2 0.0, 0.0
     @shapes[1].e = 0
     @shapes[1].body.a = 3 * Math::PI / 2.0 - Math::PI / 4
     @shapes[1].collision_type = :sword
-    @shapes[1].group = WEAPON
+    @shapes[1].group = Group::WEAPON
+    @shapes[1].layers = Layer::WEAPON
   end
 
   def polygon_image_debug(vertices)
@@ -109,7 +111,7 @@ class SquareMob < Mob
     fy = 50 * 1.0 / @image.height
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[0].body.a.radians_to_gosu,
                     0,
                     0,
@@ -121,7 +123,7 @@ class SquareMob < Mob
     fy = 65 * 1.0 / @sword.height
     @sword.draw_rot(@shapes[1].body.p.x - offsetx,
                     @shapes[1].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[1].body.a.radians_to_gosu,
                     0,
                     0,

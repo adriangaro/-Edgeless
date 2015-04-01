@@ -25,7 +25,8 @@ class Platform < Obj
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
       shape.collision_type = :platform
-      shape.group = PLATFORM
+      shape.group = Group::PLATFORM
+      shape.layers = Layer::PLATFORM
     end
   end
   def draw(offsetx, offsety)
@@ -33,7 +34,7 @@ class Platform < Obj
     fy = @sizey * 1.0 / @image.height
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[0].body.a.radians_to_gosu,
                     0,
                     0,

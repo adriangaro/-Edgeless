@@ -21,7 +21,8 @@ class PlatformPoly < Obj
       shape.e = 0
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = :platform_poly
-      shape.group = PLATFORM
+      shape.group = Group::PLATFORM
+      shape.layers = Layer::PLATFORM
     end
   end
 
@@ -44,7 +45,7 @@ class PlatformPoly < Obj
   def draw(offsetx, offsety)
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
-                    0,
+                    1,
                     @shapes[0].body.a.radians_to_gosu,
                     0,
                     0

@@ -18,23 +18,8 @@ class GameWindow < Gosu::Window
     @dt = 1.0 / 60.0
 
     @level.space.add_collision_handler :sword,
-                                       :platform,
-                                       NoCollisionHandler.new(@level.player)
-    @level.space.add_collision_handler :sword,
-                                       :platform_poly,
-                                       NoCollisionHandler.new(@level.player)
-    @level.space.add_collision_handler :sword,
-                                       :spikes,
-                                       NoCollisionHandler.new(@level.player)
-    @level.space.add_collision_handler :sword,
-                                       :border,
-                                       NoCollisionHandler.new(@level.player)
-    @level.space.add_collision_handler :sword,
                                        :ball,
                                        SwordPlayerCollisionHandler.new(@level.player)
-    @level.space.add_collision_handler :sword,
-                                       :mob,
-                                       NoCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :ball,
                                        :platform,
                                        PlayerPlatformCollisionHandler.new(@level.player)
@@ -91,7 +76,7 @@ class GameWindow < Gosu::Window
                0 if @level.player.body.p.x < width / 2 &&
                     @level.player.body.p.y < height / 2
 
-      # Bottom Left Corner
+      # Bottom Left Cornercontacts
       obj.draw 0,
                @level.level_border.sizey - height if @level.player.body.p.x < width / 2 &&
                                                      @level.player.body.p.y > @level.level_border.sizey - height / 2
@@ -163,6 +148,10 @@ class GameWindow < Gosu::Window
                @level.level_border.sizey - height if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
                                                      @level.player.body.p.y > @level.level_border.sizey - height / 2
     end
+    @level.backgrounds.each do |background|
+      background.draw @level
+    end
+
   end
 end
 

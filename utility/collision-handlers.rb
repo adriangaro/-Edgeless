@@ -119,3 +119,24 @@ class NoCollisionHandler
   def separate
   end
 end
+
+# class BackgroundCollisionHandler
+#   def initialize(player)
+#     @player = player
+#   end
+#
+#   def begin(_a, _b, _arbiter)
+#     false
+#   end
+#
+#   def pre_solve(_a, _b)
+#     false
+#   end
+#
+#   def post_solve(_arbiter)
+#     false
+#   end
+#
+#   def separate
+#   end
+# end
