@@ -17,12 +17,12 @@ class GameWindow < Gosu::Window
 
     @dt = 1.0 / 60.0
 
-    @level.space.add_collision_handler :sword,
-                                       :ball,
-                                       SwordPlayerCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :ball,
                                        :platform,
                                        PlayerPlatformCollisionHandler.new(@level.player)
+    @level.space.add_collision_handler :ball,
+                                       :spring,
+                                       PlayerSpringCollisionHandler.new(@level.player, @level)
     @level.space.add_collision_handler :ball,
                                        :platform_poly,
                                        PlayerPlatformPolyCollisionHandler.new(@level.player)
@@ -38,6 +38,7 @@ class GameWindow < Gosu::Window
         mob.do_behaviour @level.space
       end
 
+      @level.player.do_behaviour @level.space
       if button_down? Gosu::KbLeft
         @level.player.turn_left
         @level.player.accelerate_left
@@ -46,6 +47,9 @@ class GameWindow < Gosu::Window
         @level.player.turn_right
         @level.player.accelerate_right
       end
+
+      @level.player.attack if button_down? Gosu::KbZ
+
       @level.player.jump if button_down? Gosu::KbSpace
 
       @level.space.step @dt

@@ -6,6 +6,7 @@ require_relative '../objects/spike'
 require_relative '../objects/obj'
 require_relative '../utility/collision-handlers'
 require_relative '../objects/platform'
+require_relative '../objects/spring'
 require_relative '../objects/level_border'
 require_relative '../objects/platform_poly'
 require_relative '../utility/chip-gosu-functions'
@@ -30,6 +31,10 @@ class First < Level
                               vec2(0, 0)]
     @level_border = LevelBorder.new @window, 1200, 480
 
+    @platform1 = Platform.new @window, 300, 50, -30
+
+    @spring = Spring.new @window, 200
+
     @square_mob = SquareMob.new @window, vec2(500, 300)
 
     @background1 = LevelBackground.new @window,
@@ -46,6 +51,8 @@ class First < Level
     @mobs << @player
     @objects << @poly
     @objects << @level_border
+    @objects << @spring
+    @objects << @platform1
     @mobs << @square_mob
     @backgrounds << @background1
     @backgrounds << @background2
@@ -54,6 +61,8 @@ class First < Level
   def warp
     @player.warp vec2 120, 140
     @poly.warp vec2 0, 400
+    @spring.warp vec2 900, 450
+    @platform1.warp vec2 400, 400
     @level_border.warp vec2 0, 0
     @square_mob.warp vec2 300, 300
     @background1.warp vec2 0, 0

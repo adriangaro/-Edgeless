@@ -14,7 +14,7 @@ class PlayerPlatformCollisionHandler
       arbiter.ignore
       false
     else
-      @player.j = true
+      @player.jump = true
     end
     true
   end
@@ -28,7 +28,7 @@ class PlayerPlatformCollisionHandler
   end
 
   def separate
-    @player.j = false
+    @player.jump = false
   end
 end
 
@@ -38,7 +38,7 @@ class PlayerPlatformPolyCollisionHandler
   end
 
   def begin(_a, _b, arbiter)
-    @player.j = true if arbiter.normal(0).y > 0
+    @player.jump = true if arbiter.normal(0).y > 0
     true
   end
 
@@ -51,7 +51,7 @@ class PlayerPlatformPolyCollisionHandler
   end
 
   def separate
-    @player.j = false
+    @player.jump = false
   end
 end
 
@@ -77,13 +77,21 @@ class PlayerSpikeCollisionHandler
   end
 end
 
-class SwordPlayerCollisionHandler
-  def initialize(player)
+class PlayerSpringCollisionHandler
+  def initialize(player, level)
     @player = player
+    @level = level
   end
 
-  def begin(_a, _b, _arbiter)
-    puts 'Dead'
+  def begin(_a, b, _arbiter)
+    # @player.jump = true if arbiter.normal(0).y > 0
+    @level.objects.each do |obj|
+      if obj.class == Spring
+        if obj.shapes[1] == b
+          @obj = obj
+        end
+      end
+    end
     true
   end
 
@@ -96,47 +104,7 @@ class SwordPlayerCollisionHandler
   end
 
   def separate
+    # @player.jump = false
+    @player.body.apply_impulse vec2(0, -1) * @obj.stiffness * 100, vec2(0, 0)
   end
 end
-
-class NoCollisionHandler
-  def initialize(player)
-    @player = player
-  end
-
-  def begin(_a, _b, _arbiter)
-    false
-  end
-
-  def pre_solve(_a, _b)
-    false
-  end
-
-  def post_solve(_arbiter)
-    false
-  end
-
-  def separate
-  end
-end
-
-# class BackgroundCollisionHandler
-#   def initialize(player)
-#     @player = player
-#   end
-#
-#   def begin(_a, _b, _arbiter)
-#     false
-#   end
-#
-#   def pre_solve(_a, _b)
-#     false
-#   end
-#
-#   def post_solve(_arbiter)
-#     false
-#   end
-#
-#   def separate
-#   end
-# end
