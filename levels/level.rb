@@ -9,7 +9,7 @@ require_relative '../objects/platform'
 require_relative '../objects/level_background'
 require_relative '../objects/level_border'
 require_relative '../objects/platform_poly'
-require_relative '../utility/chip-gosu-functions'
+require_relative '../utility/utility'
 
 class Level
   attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space
@@ -20,7 +20,7 @@ class Level
     @objects = []
     @mobs = []
     @backgrounds = []
-    
+
     declare_obj
     warp
     add_objects

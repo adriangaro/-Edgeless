@@ -4,7 +4,7 @@ require 'require_all'
 
 require_all 'levels'
 require_all 'objects'
-
+require_all 'utility'
 
 class GameWindow < Gosu::Window
   attr_accessor :file_path
@@ -12,8 +12,19 @@ class GameWindow < Gosu::Window
     super 640, 480, false
     self.caption = 'Edgeless'
 
-
     @level = First.new self
+
+    @camera = Camera.new vec2(width / 2, height / 2), self
+
+    @offsetx = 0
+    @offsety = 0
+    @miliseconds = -1
+
+    @old_pointx = @camera.p.x
+    @old_pointy = @camera.p.y
+
+    @new_pointx = @camera.get_offset(@level.player).x + @old_pointx
+    @new_pointy = @camera.get_offset(@level.player).y + @old_pointy
 
     @dt = 1.0 / 60.0
 
@@ -21,14 +32,14 @@ class GameWindow < Gosu::Window
                                        :platform,
                                        PlayerPlatformCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :ball,
-                                       :spring,
-                                       PlayerSpringCollisionHandler.new(@level.player, @level)
-    @level.space.add_collision_handler :ball,
                                        :platform_poly,
                                        PlayerPlatformPolyCollisionHandler.new(@level.player)
     @level.space.add_collision_handler :ball,
                                        :spikes_p,
                                        PlayerSpikeCollisionHandler.new(@level.player)
+    @level.space.add_collision_handler :ball,
+                                       :jump_pad,
+                                       PlayerJumpPadCollisionHandler.new(@level.player, @level)
   end
 
   def update
@@ -54,108 +65,54 @@ class GameWindow < Gosu::Window
 
       @level.space.step @dt
     end
+
+    @old_pointx = @camera.p.x
+    @old_pointy = @camera.p.y
+
+    if @camera.get_offset(@level.player).x != 0 || @camera.get_offset(@level.player).y != 0
+      @miliseconds = 500
+      @miliseconds = 400 if @camera.moving
+      @new_pointx = @camera.get_offset(@level.player).x + @old_pointx
+      @new_pointy = @camera.get_offset(@level.player).y + @old_pointy
+      @camera.moving = true
+    end
+
+    if @miliseconds > 0
+      @offsetx = @old_pointx * (1 - sigmoid((500 - @miliseconds) / 500.0)) + @new_pointx * sigmoid((500 - @miliseconds) / 500.0)
+      @offsety = @old_pointy * (1 - sigmoid((500 - @miliseconds) / 500.0)) + @new_pointy * sigmoid((500 - @miliseconds) / 500.0)
+      @miliseconds -= 17
+    else
+      @offsetx = @new_pointx if @camera.moving
+      @offsety = @new_pointy if @camera.moving
+      @camera.moving = false
+    end
+
+    @camera.p.x = @offsetx
+    @camera.p.y = @offsety
+    @camera.set_borders
   end
 
   def draw
+    draw_offx = @camera.p.x - width / 2
+    draw_offy = @camera.p.y - height / 2
+
+    draw_offx = 0 if @camera.p.x < width / 2
+    draw_offy = 0 if @camera.p.y < height / 2
+
+    draw_offx = @level.level_border.sizex - width if @camera.p.x > @level.level_border.sizex - width / 2
+    draw_offy = @level.level_border.sizey - height if @camera.p.y > @level.level_border.sizey - height / 2
+
     @level.objects.each do |obj|
-      # Middle Screen
-      obj.draw -width / 2 + @level.player.body.p.x,
-               -height / 2 + @level.player.body.p.y if @level.player.body.p.x >= width / 2 &&
-                                                       @level.player.body.p.y >= height / 2 &&
-                                                       @level.player.body.p.y <= @level.level_border.sizey - height / 2 &&
-                                                       @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Left Screen
-      obj.draw 0,
-               -height / 2 + @level.player.body.p.y if @level.player.body.p.x < width / 2 &&
-                                                       @level.player.body.p.y >= height / 2 &&
-                                                       @level.player.body.p.y <= @level.level_border.sizey - height / 2
-
-      # Top Screen
-      obj.draw -width / 2 + @level.player.body.p.x,
-               0 if @level.player.body.p.x >= width / 2 &&
-                    @level.player.body.p.y < height / 2 &&
-                    @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Top Left Corner
-      obj.draw 0,
-               0 if @level.player.body.p.x < width / 2 &&
-                    @level.player.body.p.y < height / 2
-
-      # Bottom Left Cornercontacts
-      obj.draw 0,
-               @level.level_border.sizey - height if @level.player.body.p.x < width / 2 &&
-                                                     @level.player.body.p.y > @level.level_border.sizey - height / 2
-      # Bottom Screen
-      obj.draw -width / 2 + @level.player.body.p.x,
-               @level.level_border.sizey - height if @level.player.body.p.x >= width / 2 &&
-                                                     @level.player.body.p.y > @level.level_border.sizey - height / 2 &&
-                                                     @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Top Right Corner
-      obj.draw @level.level_border.sizex - width,
-               0 if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
-                    @level.player.body.p.y < height / 2
-      # Rigth Screen
-      obj.draw @level.level_border.sizex - width,
-               -height / 2 + @level.player.body.p.x if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
-                                                       @level.player.body.p.y >= height / 2
-                                                       @level.player.body.p.y <= @level.level_border.sizey - height / 2 &&
-                                                       @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Bottom Right Corner
-      obj.draw @level.level_border.sizex - width,
-               @level.level_border.sizey - height if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
-                                                     @level.player.body.p.y > @level.level_border.sizey - height / 2
+      obj.draw draw_offx, draw_offy
     end
 
     @level.mobs.each do |mob|
-      # Middle Screen
-      mob.draw -width / 2 + @level.player.body.p.x,
-               -height / 2 + @level.player.body.p.y if @level.player.body.p.x >= width / 2 &&
-                                                       @level.player.body.p.y >= height / 2 &&
-                                                       @level.player.body.p.y <= @level.level_border.sizey - height / 2 &&
-                                                       @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Left Screen
-      mob.draw 0,
-               -height / 2 + @level.player.body.p.y if @level.player.body.p.x < width / 2 &&
-                                                       @level.player.body.p.y >= height / 2 &&
-                                                       @level.player.body.p.y <= @level.level_border.sizey - height / 2
-
-      # Top Screen
-      mob.draw -width / 2 + @level.player.body.p.x,
-               0 if @level.player.body.p.x >= width / 2 &&
-                    @level.player.body.p.y < height / 2 &&
-                    @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Top Left Corner
-      mob.draw 0,
-               0 if @level.player.body.p.x < width / 2 &&
-                    @level.player.body.p.y < height / 2
-
-      # Bottom Left Corner
-      mob.draw 0,
-               @level.level_border.sizey - height if @level.player.body.p.x < width / 2 &&
-                                                     @level.player.body.p.y > @level.level_border.sizey - height / 2
-      # Bottom Screen
-      mob.draw -width / 2 + @level.player.body.p.x,
-               @level.level_border.sizey - height if @level.player.body.p.x >= width / 2 &&
-                                                     @level.player.body.p.y > @level.level_border.sizey - height / 2 &&
-                                                     @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Top Right Corner
-      mob.draw @level.level_border.sizex - width,
-               0 if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
-                    @level.player.body.p.y < height / 2
-      # Rigth Screen
-      mob.draw @level.level_border.sizex - width,
-               -height / 2 + @level.player.body.p.x if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
-                                                       @level.player.body.p.y >= height / 2
-                                                       @level.player.body.p.y <= @level.level_border.sizey - height / 2 &&
-                                                       @level.player.body.p.x <= @level.level_border.sizex - width / 2
-      # Bottom Right Corner
-      mob.draw @level.level_border.sizex - width,
-               @level.level_border.sizey - height if @level.player.body.p.x > @level.level_border.sizex - width / 2 &&
-                                                     @level.player.body.p.y > @level.level_border.sizey - height / 2
+      mob.draw draw_offx, draw_offy
     end
+
     @level.backgrounds.each do |background|
       background.draw @level
     end
-
   end
 end
 

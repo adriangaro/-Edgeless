@@ -3,7 +3,7 @@ require 'chipmunk'
 require 'RMagick'
 require 'rubygems'
 
-require_relative '../utility/chip-gosu-functions'
+require_relative '../utility/utility'
 require_relative 'obj'
 
 class PlatformPoly < Obj

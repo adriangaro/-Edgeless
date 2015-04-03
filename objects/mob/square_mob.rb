@@ -2,7 +2,7 @@ require 'gosu'
 require 'chipmunk'
 require 'RMagick'
 
-require_relative '../../utility/chip-gosu-functions'
+require_relative '../../utility/utility'
 require_relative '../obj'
 require_relative 'mob'
 

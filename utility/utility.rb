@@ -10,3 +10,7 @@ end
 def vec2(x, y)
   CP::Vec2.new x, y
 end
+
+def sigmoid(t)
+  return 1 / (1 + Math::E ** (-(2 * t - 1) * 5))
+end

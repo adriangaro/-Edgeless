@@ -1,7 +1,7 @@
 require 'gosu'
 require 'chipmunk'
 
-require_relative '../utility/chip-gosu-functions'
+require_relative '../utility/utility'
 require_relative 'obj'
 
 class LevelBackground < Obj

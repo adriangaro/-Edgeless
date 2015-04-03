@@ -1,7 +1,7 @@
 require 'gosu'
 require 'chipmunk'
 
-require_relative '../utility/chip-gosu-functions'
+require_relative '../utility/utility'
 
 module Group
   LEVEL_BORDER = 1
@@ -11,7 +11,7 @@ module Group
   SPIKE = 5
   MOB = 6
   WEAPON = 7
-  SPRING = 8
+  JUMP_PAD = 8
 end
 
 module Layer
@@ -19,7 +19,7 @@ module Layer
   # 1st Bit Border Collision
   # 2nd Bit Platform Collision
   # 3rd Bit -
-  # 4th Bit Spring Helper Collision
+  # 4th Bit -
   # 5th Bit Spring Collision
   # 6th Bit Spike Collision
   # 7th Bit Weapon Collision
@@ -27,12 +27,11 @@ module Layer
   LEVEL_BORDER =     '10000000'.to_i 2
   LEVEL_BACKGROUND = '00000001'.to_i 2
   PLAYER =           '11001100'.to_i 2
-  PLATFORM =         '01001000'.to_i 2
+  PLATFORM =         '01000000'.to_i 2
   SPIKE =            '00000100'.to_i 2
   MOB =              '11001110'.to_i 2
   WEAPON =           '00000010'.to_i 2
-  SPRING =           '01011000'.to_i 2
-  SPRING_HELPER =    '00010000'.to_i 2
+  JUMP_PAD =         '00001000'.to_i 2
 end
 
 class Obj
@@ -54,6 +53,5 @@ class Obj
     end
   end
 
-  def draw
-  end
+  def draw; end
 end

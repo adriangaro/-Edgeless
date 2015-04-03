@@ -1,7 +1,7 @@
 require 'gosu'
 require 'chipmunk'
 
-require_relative '../../utility/chip-gosu-functions'
+require_relative '../../utility/utility'
 require_relative 'mob'
 
 SUBSTEPS = 6
@@ -10,7 +10,7 @@ SCREEN_HEIGHT = 480
 class Player < Mob
   attr_accessor :jump
   def initialize(window, diameter)
-    super window, 'resources/images/ball.png'
+    super window, 'resources/images/player.png'
     @sword = Gosu::Image.new(window,
                              Magick::Image.read('resources/images/sword.png')[0].flip!.flop!)
 
@@ -46,13 +46,13 @@ class Player < Mob
     @shapes[1].body.p = vec2 0.0, 0.0
     @shapes[1].body.v = vec2 0.0, 0.0
     @shapes[1].e = 0
-    @shapes[1].body.a = 3 * Math::PI / 2.0 - Math::PI / 4
+    @shapes[1].body.a = 3 * Math::PI / 2.0 - Math::PI / 18
     @shapes[1].collision_type = :sword
     @shapes[1].group = Group::WEAPON
     @shapes[1].layers = Layer::WEAPON
 
     @attacking = false
-    @target_angle = 3 * Math::PI / 2.0 - Math::PI / 4
+    @target_angle = 3 * Math::PI / 2.0 - Math::PI / 18
   end
 
   def warp(vect)
@@ -73,12 +73,12 @@ class Player < Mob
 
   def turn_left
     @shapes[0].body.t -= 600.0 / SUBSTEPS
-    @shapes[1].body.a = 3 * Math::PI / 2.0 - Math::PI / 4 if @shapes[1].body.a > 3 * Math::PI / 2.0 && !@attacking
+    @shapes[1].body.a = 3 * Math::PI / 2.0 - Math::PI / 18 if @shapes[1].body.a > 3 * Math::PI / 2.0 && !@attacking
   end
 
   def turn_right
     @shapes[0].body.t += 600.0 / SUBSTEPS
-    @shapes[1].body.a = 3 * Math::PI / 2.0 + Math::PI / 4 if @shapes[1].body.a < 3 * Math::PI / 2.0 && !@attacking
+    @shapes[1].body.a = 3 * Math::PI / 2.0 + Math::PI / 18 if @shapes[1].body.a < 3 * Math::PI / 2.0 && !@attacking
   end
 
   def accelerate_left
@@ -110,28 +110,30 @@ class Player < Mob
     if @attacking
       @shapes[1].body.a += Math::PI / 180.0 * dir if ((@shapes[1].body.a > 3 * Math::PI / 2.0 - 3 * Math::PI / 4 ) ||
                                                       (@shapes[1].body.a < 3 * Math::PI / 2.0 + 3 * Math::PI / 4 )) &&
-                                                     (3 * Math::PI / 2.0 + 1 * Math::PI / 4 != @target_angle &&
-                                                      3 * Math::PI / 2.0 - 1 * Math::PI / 4 != @target_angle) &&
+                                                     (3 * Math::PI / 2.0 + 1 * Math::PI / 18 != @target_angle &&
+                                                      3 * Math::PI / 2.0 - 1 * Math::PI / 18 != @target_angle) &&
                                                      @attacking
 
       @shapes[1].body.a -= Math::PI / 180.0 * dir if (@shapes[1].body.a - @target_angle > 0 && dir == 1) ||
                                                      (@shapes[1].body.a - @target_angle < 0 && dir == -1) &&
                                                      @attacking
 
-      @target_angle = 3 * Math::PI / 2.0 + Math::PI / 4.0 * dir if @target_angle.round(4) - @shapes[1].body.a.round(4) == 0.0
-      @attacking = false if (3 * Math::PI / 2.0 + Math::PI / 4.0 * dir).round(4) - @shapes[1].body.a.round(4) == 0.0
+      @target_angle = 3 * Math::PI / 2.0 + Math::PI / 18.0 * dir if @target_angle.round(4) - @shapes[1].body.a.round(4) == 0.0
+      @attacking = false if (3 * Math::PI / 2.0 + Math::PI / 18.0 * dir).round(4) - @shapes[1].body.a.round(4) == 0.0
     end
   end
 
   def draw(offsetx, offsety)
     f = @diameter * 1.0 / @image.width
+    dir = -1 if 3 * Math::PI / 2.0 - @shapes[1].body.a > 0
+    dir = 1 if 3 * Math::PI / 2.0 - @shapes[1].body.a < 0
     @image.draw_rot(@shapes[0].body.p.x - offsetx,
                     @shapes[0].body.p.y - offsety,
                     1,
-                    @shapes[0].body.a.radians_to_gosu,
+                    0,
                     0.5,
                     0.5,
-                    f,
+                    f * dir,
                     f)
     fx = 20 * 1.0 / @sword.width
     fy = 65 * 1.0 / @sword.height

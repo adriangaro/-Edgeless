@@ -72,24 +72,18 @@ class PlayerSpikeCollisionHandler
   def post_solve(_arbiter)
     true
   end
-
-  def separate
-  end
 end
 
-class PlayerSpringCollisionHandler
+class PlayerJumpPadCollisionHandler
   def initialize(player, level)
     @player = player
     @level = level
   end
 
-  def begin(_a, b, _arbiter)
-    # @player.jump = true if arbiter.normal(0).y > 0
+  def begin(_a, b, arbiter)
     @level.objects.each do |obj|
-      if obj.class == Spring
-        if obj.shapes[1] == b
-          @obj = obj
-        end
+      if obj.shapes[0] == b
+        @player.body.apply_impulse vec2(Math::cos(obj.body.a), Math::sin(obj.body.a)) * 6500, vec2(0, 0) if arbiter.normal(0).y > 0
       end
     end
     true
@@ -101,10 +95,5 @@ class PlayerSpringCollisionHandler
 
   def post_solve(_arbiter)
     true
-  end
-
-  def separate
-    # @player.jump = false
-    @player.body.apply_impulse vec2(0, -1) * @obj.stiffness * 100, vec2(0, 0)
   end
 end
