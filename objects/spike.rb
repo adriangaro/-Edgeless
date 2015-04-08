@@ -10,8 +10,14 @@ class Spike < Obj
 
     @sizex = sizex
     @sizey = sizey
+    @angle = angle
 
-    @body = CP::StaticBody.new
+    create_bodies
+    add_shapes
+    set_shapes_prop
+  end
+
+  def add_shapes
     @shapes << CP::Shape::Poly.new(body,
                                    [vec2(0.0, @sizex / 8.0),
                                     vec2(- @sizey, 0.0),
@@ -32,26 +38,41 @@ class Spike < Obj
                                     vec2(- @sizey, 6 * @sizex / 8.0),
                                     vec2(- @sizey, 8.0 * @sizex / 8.0)],
                                    vec2(0, 0))
+
     @shapes << CP::Shape::Circle.new(body, 1, vec2(0, @sizex / 8.0))
     @shapes << CP::Shape::Circle.new(body, 1, vec2(0, 3 * @sizex / 8.0))
     @shapes << CP::Shape::Circle.new(body, 1, vec2(0, 5 * @sizex / 8.0))
     @shapes << CP::Shape::Circle.new(body, 1, vec2(0, 7 * @sizex / 8.0))
+  end
 
+  def create_bodies
+    @body = CP::StaticBody.new
+  end
+
+  def set_shapes_prop
+    set_shapes_body_prop
+    set_shapes_body_yop_prop
+  end
+
+  def set_shapes_body_prop
     4.times do |i|
       @shapes[i].body.p = vec2 0.0, 0.0
       @shapes[i].body.v = vec2 0.0, 0.0
       @shapes[i].e = 0.3
-      @shapes[i].body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
+      @shapes[i].body.a = 3 * Math::PI / 2.0 + @angle / 180.0 * Math::PI
       @shapes[i].collision_type = :spikes
       @shapes[i].group = Group::SPIKE
       @shapes[i].layers = Layer::SPIKE
     end
+  end
+
+  def set_shapes_body_yop_prop
     4.times do |i|
       @shapes[i + 4].body.p = vec2 0.0, 0.0
       @shapes[i + 4].body.v = vec2 0.0, 0.0
       @shapes[i + 4].e = 0.3
-      @shapes[i + 4].body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
-      @shapes[i + 4].collision_type = :spikes_p
+      @shapes[i + 4].body.a = 3 * Math::PI / 2.0 + @angle / 180.0 * Math::PI
+      @shapes[i + 4].collision_type = :spikes_t
       @shapes[i + 4].group = Group::SPIKE
       @shapes[i + 4].layers = Layer::SPIKE
     end
@@ -60,13 +81,9 @@ class Spike < Obj
   def draw(offsetx, offsety)
     fx = @sizex * 1.0 / @image.width
     fy = @sizey * 1.0 / @image.height
-    @image.draw_rot(@shapes[0].body.p.x - offsetx,
-                    @shapes[0].body.p.y - offsety,
-                    1,
-                    @shapes[0].body.a.radians_to_gosu,
-                    0,
-                    0,
-                    fx,
-                    fy)
+    x = @body.p.x - offsetx
+    y = @body.p.y - offsety
+    a = @body.a.radians_to_gosu
+    @image.draw_rot(x, y, 1, a, 0, 0, fx, fy)
   end
 end

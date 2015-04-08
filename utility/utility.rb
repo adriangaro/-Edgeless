@@ -1,6 +1,7 @@
 require 'gosu'
 require 'chipmunk'
 
+# Numeric
 class Numeric
   def radians_to_vec2
     CP::Vec2.new Math::cos(self), Math::sin(self)
@@ -12,5 +13,5 @@ def vec2(x, y)
 end
 
 def sigmoid(t)
-  return 1 / (1 + Math::E ** (-(2 * t - 1) * 5))
+  1 / (1 + Math::E ** (-(2 * t - 1) * 5))
 end

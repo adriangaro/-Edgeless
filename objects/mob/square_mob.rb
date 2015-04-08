@@ -7,24 +7,35 @@ require_relative '../obj'
 require_relative 'mob'
 
 class SquareMob < Mob
-  def initialize(window, finish)
+  def initialize(window, finish, color = Gosu::Color.new(232, 86, 86))
     super window, 'resources/images/square_mob.png'
     @window = window
 
     @finish_pos = finish
     @change = true
+    @color = color
 
-    @body = CP::Body.new 10.0, 1000
+
 
     @vertices = [vec2(-50.0, 0.0),
                  vec2(-50.0, 50.0),
                  vec2(0.0, 50.0),
                  vec2(0.0, 0.0)]
 
+    @image = polygon_image(@vertices)
+
+    create_bodies
+    add_shapes
+    set_shapes_prop
+  end
+
+  def add_shapes
     @shapes << CP::Shape::Poly.new(@body,
                                    @vertices,
                                    vec2(0, 0))
+  end
 
+  def set_shapes_prop
     @shapes[0].body.p = vec2 0.0, 0.0
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0.3
@@ -32,8 +43,29 @@ class SquareMob < Mob
     @shapes[0].collision_type = :mob
     @shapes[0].group = Group::MOB
     @shapes[0].layers = Layer::MOB
-
   end
+
+  def create_bodies
+    @body = CP::Body.new 10.0, 1000
+  end
+
+  def polygon_image(vertices)
+    maxx = vertices.map { |v| v.x.abs }.max
+    maxy = vertices.map { |v| v.y.abs }.max
+
+    box_image = Magick::Image.new(maxy + 1,
+                                  maxx + 1) { self.background_color = 'transparent' }
+    gc = Magick::Draw.new
+    gc.stroke '#' + @color.red.to_s(16) + @color.green.to_s(16) + @color.blue.to_s(16)  + 255.to_s(16)
+    gc.fill '#' + @color.red.to_s(16) + @color.green.to_s(16) + @color.blue.to_s(16)  + 255.to_s(16)
+    gc.stroke_width(1)
+    draw_vertices = vertices.map { |v| [v.y.abs, v.x.abs] }.flatten
+    gc.polygon(*draw_vertices)
+    gc.draw box_image
+    puts box_image
+    Gosu::Image.new @window, box_image
+  end
+
 
   def warp(vect)
     @shapes[0].body.p = vect
@@ -63,17 +95,16 @@ class SquareMob < Mob
     end
   end
 
+  def respawn
+    @shapes[0].body.p = @init_pos
+  end
+
   def draw(offsetx, offsety)
     fx = 50 * 1.0 / @image.width
     fy = 50 * 1.0 / @image.height
-    @image.draw_rot(@shapes[0].body.p.x - offsetx,
-                    @shapes[0].body.p.y - offsety,
-                    1,
-                    @shapes[0].body.a.radians_to_gosu,
-                    0,
-                    0,
-                    fx,
-                    fy
-                    )
+    x = @body.p.x - offsetx
+    y = @body.p.y - offsety
+    a = @body.a.radians_to_gosu
+    @image.draw_rot(x, y, 1, a, 0, 0, fx, fy)
   end
 end

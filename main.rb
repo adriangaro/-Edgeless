@@ -9,25 +9,34 @@ require_all 'utility'
 class GameWindow < Gosu::Window
   attr_accessor :file_path
   def initialize
-    super 640, 480, false
+    super 800, 600, false
     self.caption = 'Edgeless'
 
-    @level = First.new self
+    initialize_level
+    initialize_camera
+    add_collision_handlers
+  end
 
-    @camera = Camera.new vec2(width / 2, height / 2), self
+  def initialize_level
+    @level = Test.new self
+    @dt = 1.0 / 60.0
+  end
 
-    @offsetx = 0
-    @offsety = 0
+  def initialize_camera
+    @camera = Camera.new vec2(@level.player.body.p.x, @level.player.body.p.y),
+                         self
+    initialize_camera_behaviour
+  end
+
+  def initialize_camera_behaviour
+    @offset = vec2 0, 0
     @miliseconds = -1
 
-    @old_pointx = @camera.p.x
-    @old_pointy = @camera.p.y
+    @old_point = @camera.p
+    @new_point = @camera.get_offset(@level.player) + @old_point
+  end
 
-    @new_pointx = @camera.get_offset(@level.player).x + @old_pointx
-    @new_pointy = @camera.get_offset(@level.player).y + @old_pointy
-
-    @dt = 1.0 / 60.0
-
+  def add_collision_handlers
     @level.space.add_collision_handler :ball,
                                        :platform,
                                        PlayerPlatformCollisionHandler.new(@level.player)
@@ -40,6 +49,12 @@ class GameWindow < Gosu::Window
     @level.space.add_collision_handler :ball,
                                        :jump_pad,
                                        PlayerJumpPadCollisionHandler.new(@level.player, @level)
+    @level.space.add_collision_handler :border_bottom,
+                                       :mob,
+                                       MobBorderCollisionHandler.new(@level.player, @level)
+    @level.space.add_collision_handler :border_bottom,
+                                       :ball,
+                                       MobBorderCollisionHandler.new(@level.player, @level)
   end
 
   def update
@@ -49,65 +64,63 @@ class GameWindow < Gosu::Window
         mob.do_behaviour @level.space
       end
 
-      @level.player.do_behaviour @level.space
-      if button_down? Gosu::KbLeft
-        @level.player.turn_left
-        @level.player.accelerate_left
-      end
-      if button_down? Gosu::KbRight
-        @level.player.turn_right
-        @level.player.accelerate_right
-      end
-
-      @level.player.attack if button_down? Gosu::KbZ
-
-      @level.player.jump if button_down? Gosu::KbSpace
+      add_keyboard_controls
 
       @level.space.step @dt
     end
 
-    @old_pointx = @camera.p.x
-    @old_pointy = @camera.p.y
+    camera_behaviour
+  end
+
+  def camera_behaviour
+    @old_point = @camera.p
+
+    @time = 450.0
 
     if @camera.get_offset(@level.player).x != 0 || @camera.get_offset(@level.player).y != 0
-      @miliseconds = 500
-      @miliseconds = 400 if @camera.moving
-      @new_pointx = @camera.get_offset(@level.player).x + @old_pointx
-      @new_pointy = @camera.get_offset(@level.player).y + @old_pointy
+      @miliseconds = @time - 100
+      @new_point = @camera.get_offset(@level.player) + @old_point
       @camera.moving = true
     end
 
     if @miliseconds > 0
-      @offsetx = @old_pointx * (1 - sigmoid((500 - @miliseconds) / 500.0)) + @new_pointx * sigmoid((500 - @miliseconds) / 500.0)
-      @offsety = @old_pointy * (1 - sigmoid((500 - @miliseconds) / 500.0)) + @new_pointy * sigmoid((500 - @miliseconds) / 500.0)
+      @offset = @old_point * (1 - sigmoid((@time - @miliseconds) / @time)) + @new_point * sigmoid((@time - @miliseconds) / @time)
       @miliseconds -= 17
     else
-      @offsetx = @new_pointx if @camera.moving
-      @offsety = @new_pointy if @camera.moving
+      @offset = @new_point if @camera.moving
       @camera.moving = false
     end
 
-    @camera.p.x = @offsetx
-    @camera.p.y = @offsety
+    @camera.p = @offset
     @camera.set_borders
   end
 
+  def add_keyboard_controls
+    if button_down? Gosu::KbLeft
+      @level.player.turn_left
+      @level.player.accelerate_left
+    end
+    if button_down? Gosu::KbRight
+      @level.player.turn_right
+      @level.player.accelerate_right
+    end
+
+    close if button_down? Gosu::KbEscape
+
+    @level.player.attack if button_down? Gosu::KbZ
+
+    @level.player.jump if button_down? Gosu::KbSpace
+  end
+
   def draw
-    draw_offx = @camera.p.x - width / 2
-    draw_offy = @camera.p.y - height / 2
-
-    draw_offx = 0 if @camera.p.x < width / 2
-    draw_offy = 0 if @camera.p.y < height / 2
-
-    draw_offx = @level.level_border.sizex - width if @camera.p.x > @level.level_border.sizex - width / 2
-    draw_offy = @level.level_border.sizey - height if @camera.p.y > @level.level_border.sizey - height / 2
+    draw_off = @camera.get_draw_offset @level
 
     @level.objects.each do |obj|
-      obj.draw draw_offx, draw_offy
+      obj.draw draw_off.x, draw_off.y
     end
 
     @level.mobs.each do |mob|
-      mob.draw draw_offx, draw_offy
+      mob.draw draw_off.x, draw_off.y
     end
 
     @level.backgrounds.each do |background|

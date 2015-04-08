@@ -53,5 +53,11 @@ class Obj
     end
   end
 
+  def add_shapes; end
+
+  def set_shapes_prop; end
+
+  def create_bodies; end
+
   def draw; end
 end

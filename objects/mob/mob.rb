@@ -9,6 +9,15 @@ class Mob < Obj
     super window, source
   end
 
+  def warp(vect)
+    @shapes[0].body.p = vect
+    @init_pos = vect
+  end
+
+  def respawn
+    @shapes[0].body.p = @init_pos
+  end
+
   def do_behaviour(_space)
   end
 

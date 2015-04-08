@@ -11,10 +11,18 @@ class PlatformPoly < Obj
     @window = window
     @shapes = []
     @image = polygon_image(vertices)
+    @vertices = vertices
 
-    @body = CP::Body.new Float::INFINITY, Float::INFINITY
-    @shapes << CP::Shape::Poly.new(body, vertices, vec2(0, 0))
+    create_bodies
+    add_shapes
+    set_shapes_prop
+  end
 
+  def add_shapes
+    @shapes << CP::Shape::Poly.new(body, @vertices, vec2(0, 0))
+  end
+
+  def set_shapes_prop
     @shapes.each do |shape|
       shape.body.p = vec2 0.0, 0.0
       shape.body.v = vec2 0.0, 0.0
@@ -26,29 +34,28 @@ class PlatformPoly < Obj
     end
   end
 
+  def create_bodies
+    @body = CP::Body.new Float::INFINITY, Float::INFINITY
+  end
+
   def polygon_image(vertices)
     maxx = vertices.map { |v| v.x.abs }.max
     maxy = vertices.map { |v| v.y.abs }.max
-    puts maxx
-    puts maxy
     box_image = Magick::Image.new(maxy + 1,
                                   maxx + 1) { self.background_color = 'transparent' }
-    gc = Magick::Draw.new
-    gc.stroke 'red'
-    gc.fill 'plum'
+    d = Magick::Draw.new
+    d.stroke '#7171aa'
+    d.fill '#7171aa'
     draw_vertices = vertices.map { |v| [v.y, v.x.abs] }.flatten
-    gc.polygon(*draw_vertices)
-    gc.draw box_image
+    d.polygon(*draw_vertices)
+    d.draw box_image
     Gosu::Image.new @window, box_image
   end
 
   def draw(offsetx, offsety)
-    @image.draw_rot(@shapes[0].body.p.x - offsetx,
-                    @shapes[0].body.p.y - offsety,
-                    1,
-                    @shapes[0].body.a.radians_to_gosu,
-                    0,
-                    0
-                    )
+    x = @body.p.x - offsetx
+    y = @body.p.y - offsety
+    a = @body.a.radians_to_gosu
+    @image.draw_rot(x, y, 1, a, 0, 0)
   end
 end

@@ -6,21 +6,28 @@ require_relative 'obj'
 
 class JumpPad < Obj
   attr_accessor :angle
-  def initialize(window, angle = 0, color = Gosu::Color.new(255, 255, 255))
+  def initialize(window, sizex = 50, angle = 0, color = Gosu::Color.new(255, 255, 255))
     @window = window
-    @image = polygon_image(color)
     @angle = angle
-
+    @color = color
     @shapes = []
+    @shape_vertices = [vec2(0, 0),
+                      vec2(-20, 0),
+                      vec2(-20, sizex),
+                      vec2(0, sizex)]
 
-    @body = CP::Body.new Float::INFINITY, Float::INFINITY
+    @image = polygon_image(@shape_vertices)
 
-    shape_vertices = [vec2(0, 0),
-                      vec2(-10, 0),
-                      vec2(-10, 50),
-                      vec2(0, 50)]
-    @shapes << CP::Shape::Poly.new(body, shape_vertices, vec2(0, 0))
+    create_bodies
+    add_shapes
+    set_shapes_prop
+  end
 
+  def add_shapes
+    @shapes << CP::Shape::Poly.new(body, @shape_vertices, vec2(0, 0))
+  end
+
+  def set_shapes_prop
     @shapes.each do |shape|
       shape.body.p = vec2 0.0, 0.0
       shape.body.v = vec2 0.0, 0.0
@@ -32,25 +39,31 @@ class JumpPad < Obj
     end
   end
 
-  def polygon_image(color)
-    box_image = Magick::Image.new(2000,
-                                  7500) { self.background_color = 'transparent' }
+  def create_bodies
+    @body = CP::Body.new Float::INFINITY, Float::INFINITY
+  end
+
+  def polygon_image(vertices)
+    maxx = vertices.map { |v| v.x.abs }.max
+    maxy = vertices.map { |v| v.y.abs }.max
+
+    box_image = Magick::Image.new(maxy + 1,
+                                  maxx + 1) { self.background_color = 'transparent' }
     gc = Magick::Draw.new
-    gc.stroke "#" + ("%02x" % color.red) + ("%02x" % color.green) + ("%02x" % color.blue)  + ("%02x" % 255)
-    gc.fill "#" + ("%02x" % color.red) + ("%02x" % color.green) + ("%02x" % color.blue)  + ("%02x" % 130)
+    gc.stroke '#' + @color.red.to_s(16) + @color.green.to_s(16) + @color.blue.to_s(16)  + 255.to_s(16)
+    gc.fill '#' + @color.red.to_s(16) + @color.green.to_s(16) + @color.blue.to_s(16)  + 255.to_s(16)
     gc.stroke_width(1)
-    gc.ellipse 25,10, 25, 10, 180, 360
+    draw_vertices = vertices.map { |v| [v.y.abs, v.x.abs] }.flatten
+    gc.polygon(*draw_vertices)
     gc.draw box_image
     puts box_image
     Gosu::Image.new @window, box_image
   end
 
   def draw(offsetx, offsety)
-    @image.draw_rot(@shapes[0].body.p.x - offsetx,
-                    @shapes[0].body.p.y - offsety,
-                    1,
-                    @shapes[0].body.a.radians_to_gosu,
-                    0,
-                    0)
+    x = @body.p.x - offsetx
+    y = @body.p.y - offsety
+    a = @body.a.radians_to_gosu
+    @image.draw_rot(x, y, 1, a, 0, 0)
   end
 end

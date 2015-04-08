@@ -4,7 +4,6 @@ require 'chipmunk'
 require_relative 'level'
 require_relative '../objects/spike'
 require_relative '../objects/obj'
-require_relative '../utility/collision-handlers'
 require_relative '../objects/platform'
 require_relative '../objects/jump_pad'
 require_relative '../objects/level_border'
@@ -26,10 +25,10 @@ class First < Level
     @player = Player.new @window, 50
     @poly = PlatformPoly.new @window,
                              [vec2(-50.0, 0.0),
-                              vec2(-50.0, 1200.0),
-                              vec2(0, 1200.0),
+                              vec2(-50.0, 2000.0),
+                              vec2(0, 2000.0),
                               vec2(0, 0)]
-    @level_border = LevelBorder.new @window, 1200, 480
+    @level_border = LevelBorder.new @window, 2000, 480
 
     @jump_pad = JumpPad.new @window, 45
 
@@ -45,6 +44,10 @@ class First < Level
                                        "resources/images/background2.png",
                                        560,
                                        480
+    @background3 = LevelBackground.new @window,
+                                       "resources/images/background3.png",
+                                       800,
+                                       480
   end
 
   def add_objects
@@ -56,6 +59,7 @@ class First < Level
     @mobs << @square_mob
     @backgrounds << @background1
     @backgrounds << @background2
+    @backgrounds << @background3
   end
 
   def warp
@@ -67,5 +71,6 @@ class First < Level
     @square_mob.warp vec2 300, 300
     @background1.warp vec2 0, 0
     @background2.warp vec2 640, 0
+    @background3.warp vec2 1200, 0
   end
 end
