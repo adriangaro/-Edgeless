@@ -24,22 +24,24 @@ module Layer
   # 6th Bit Spike Collision
   # 7th Bit Weapon Collision
   # 8th Bit Background Collision
+  NULL_LAYER =       '00000000'.to_i 2
   LEVEL_BORDER =     '10000000'.to_i 2
   LEVEL_BACKGROUND = '00000001'.to_i 2
   PLAYER =           '11001100'.to_i 2
   PLATFORM =         '01000000'.to_i 2
   SPIKE =            '00000100'.to_i 2
   MOB =              '11001110'.to_i 2
-  WEAPON =           '00000010'.to_i 2
+  WEAPON =           '01000010'.to_i 2
   JUMP_PAD =         '00001000'.to_i 2
 end
 
 class Obj
-  attr_reader :shapes, :body, :draw_img
+  attr_reader :shapes, :bodies, :draw_img
   def initialize(window, source)
     @window = window
     @image = Gosu::Image.new window, source
     @shapes = []
+    @bodies = []
   end
 
   def warp(vect)
@@ -47,7 +49,10 @@ class Obj
   end
 
   def add_to_space(space)
-    space.add_body @body unless @body.mass == Float::INFINITY
+    @bodies.each do |body|
+      space.add_body body unless body.mass == Float::INFINITY
+    end
+
     @shapes.each do |shape|
       space.add_shape shape
     end

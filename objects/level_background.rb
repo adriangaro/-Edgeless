@@ -9,6 +9,7 @@ class LevelBackground < Obj
   def initialize(window, source, sizex, sizey)
     @window = window
     @shapes = []
+    @bodies = []
 
     @image = Gosu::Image.new @window, source
 
@@ -23,7 +24,7 @@ class LevelBackground < Obj
   end
 
   def add_shapes
-    @shapes << CP::Shape::Poly.new(@body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(- @sizey - 200, - 200),
                                     vec2(- @sizey - 200, @sizex + 200),
                                     vec2(200, @sizex + 200),
@@ -42,7 +43,7 @@ class LevelBackground < Obj
   end
 
   def create_bodies
-    @body = CP::Body.new Float::INFINITY, Float::INFINITY
+    @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
 
   def draw(level)
@@ -51,10 +52,10 @@ class LevelBackground < Obj
 
     f = 0
 
-    min = [level.player.body.p.x + 15 - (@shapes[0].body.p.x - 200),
-           level.player.body.p.y + 15 - (@shapes[0].body.p.y - 200),
-           (@shapes[0].body.p.x + @sizex + 200) - level.player.body.p.x + 15,
-           (@shapes[0].body.p.y + @sizex + 200) - level.player.body.p.y + 15].min
+    min = [level.player.bodies[0].p.x + 15 - (@shapes[0].body.p.x - 200),
+           level.player.bodies[0].p.y + 15 - (@shapes[0].body.p.y - 200),
+           (@shapes[0].body.p.x + @sizex + 200) - level.player.bodies[0].p.x + 15,
+           (@shapes[0].body.p.y + @sizex + 200) - level.player.bodies[0].p.y + 15].min
     f = 1 if min > 200
     f = min / 200.0 if min < 200
     c = Gosu::Color.new(255 * f, 255, 255, 255)

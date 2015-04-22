@@ -10,6 +10,7 @@ class PlatformPoly < Obj
   def initialize(window, vertices)
     @window = window
     @shapes = []
+    @bodies = []
     @image = polygon_image(vertices)
     @vertices = vertices
 
@@ -19,7 +20,7 @@ class PlatformPoly < Obj
   end
 
   def add_shapes
-    @shapes << CP::Shape::Poly.new(body, @vertices, vec2(0, 0))
+    @shapes << CP::Shape::Poly.new(@bodies[0], @vertices, vec2(0, 0))
   end
 
   def set_shapes_prop
@@ -35,7 +36,7 @@ class PlatformPoly < Obj
   end
 
   def create_bodies
-    @body = CP::Body.new Float::INFINITY, Float::INFINITY
+    @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
 
   def polygon_image(vertices)
@@ -53,9 +54,9 @@ class PlatformPoly < Obj
   end
 
   def draw(offsetx, offsety)
-    x = @body.p.x - offsetx
-    y = @body.p.y - offsety
-    a = @body.a.radians_to_gosu
+    x = @bodies[0].p.x - offsetx
+    y = @bodies[0].p.y - offsety
+    a = @bodies[0].a.radians_to_gosu
     @image.draw_rot(x, y, 1, a, 0, 0)
   end
 end

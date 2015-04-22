@@ -5,9 +5,9 @@ require 'require_all'
 require_all 'levels'
 require_all 'objects'
 require_all 'utility'
+require_all 'anim'
 
 class GameWindow < Gosu::Window
-  attr_accessor :file_path
   def initialize
     super 800, 600, false
     self.caption = 'Edgeless'
@@ -15,6 +15,7 @@ class GameWindow < Gosu::Window
     initialize_level
     initialize_camera
     add_collision_handlers
+    create_animations
   end
 
   def initialize_level
@@ -23,7 +24,7 @@ class GameWindow < Gosu::Window
   end
 
   def initialize_camera
-    @camera = Camera.new vec2(@level.player.body.p.x, @level.player.body.p.y),
+    @camera = CameraEdgeless.new vec2(@level.player.bodies[0].p.x, @level.player.bodies[0].p.y),
                          self
     initialize_camera_behaviour
   end
@@ -68,7 +69,7 @@ class GameWindow < Gosu::Window
 
       @level.space.step @dt
     end
-
+    puts SUBSTEPS
     camera_behaviour
   end
 

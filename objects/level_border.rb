@@ -10,6 +10,7 @@ class LevelBorder < Obj
     @g = false
     @window = window
     @shapes = []
+    @bodies = []
 
     @sizex = sizex
     @sizey = sizey
@@ -20,25 +21,25 @@ class LevelBorder < Obj
   end
 
   def add_shapes
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(20.0, -20.0),
                                     vec2(-@sizey - 20.0, -20.0),
                                     vec2(-@sizey - 20.0, 0.0),
                                     vec2(20.0, 0.0)],
                                    vec2(0, 0))
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(20.0, -20.0),
                                     vec2(0.0, -20.0),
                                     vec2(0.0, @sizex + 20.0),
                                     vec2(20.0, @sizex + 20.0)],
                                    vec2(0, 0))
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(20.0, @sizex),
                                     vec2(-@sizey - 20.0, @sizex),
                                     vec2(-@sizey - 20.0, @sizex + 20.0),
                                     vec2(20.0, @sizex + 20.0)],
                                    vec2(0, 0))
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(-@sizey, -20.0),
                                     vec2(-@sizey - 20.0, -20.0),
                                     vec2(-@sizey - 20.0, @sizex + 20.0),
@@ -67,7 +68,7 @@ class LevelBorder < Obj
   end
 
   def create_bodies
-    @body = CP::Body.new Float::INFINITY, Float::INFINITY
+    @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
 
   def draw(_offsetx, _offsety)

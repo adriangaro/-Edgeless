@@ -63,7 +63,7 @@ class PlayerJumpPadCollisionHandler
   def begin(_a, b, arbiter)
     @level.objects.each do |obj|
       if obj.shapes[0] == b
-        @player.body.apply_impulse get_direction_vector(obj) * 6500,
+        @player.bodies[0].apply_impulse get_direction_vector(obj) * 6500,
                                    vec2(0, 0) if arbiter.normal(0).y > 0
       end
     end
@@ -71,7 +71,7 @@ class PlayerJumpPadCollisionHandler
   end
 
   def get_direction_vector(obj)
-    vec2(Math.cos(obj.body.a), Math.sin(obj.body.a))
+    vec2(Math.cos(obj.bodies[0].a), Math.sin(obj.bodies[0].a))
   end
 end
 

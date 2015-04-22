@@ -30,7 +30,7 @@ class SquareMob < Mob
   end
 
   def add_shapes
-    @shapes << CP::Shape::Poly.new(@body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    @vertices,
                                    vec2(0, 0))
   end
@@ -46,7 +46,7 @@ class SquareMob < Mob
   end
 
   def create_bodies
-    @body = CP::Body.new 10.0, 1000
+    @bodies << CP::Body.new(10.0, 1000)
   end
 
   def polygon_image(vertices)
@@ -73,7 +73,7 @@ class SquareMob < Mob
   end
 
   def add_to_space(space)
-    space.add_body @body
+    space.add_body @bodies[0]
     @shapes.each do |shape|
       space.add_shape shape
     end
@@ -102,9 +102,9 @@ class SquareMob < Mob
   def draw(offsetx, offsety)
     fx = 50 * 1.0 / @image.width
     fy = 50 * 1.0 / @image.height
-    x = @body.p.x - offsetx
-    y = @body.p.y - offsety
-    a = @body.a.radians_to_gosu
+    x = @bodies[0].p.x - offsetx
+    y = @bodies[0].p.y - offsety
+    a = @bodies[0].a.radians_to_gosu
     @image.draw_rot(x, y, 1, a, 0, 0, fx, fy)
   end
 end

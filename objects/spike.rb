@@ -18,35 +18,35 @@ class Spike < Obj
   end
 
   def add_shapes
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(0.0, @sizex / 8.0),
                                     vec2(- @sizey, 0.0),
                                     vec2(- @sizey, 2 * @sizex / 8.0)],
                                    vec2(0, 0))
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(0.0, 3 * @sizex / 8.0),
                                     vec2(- @sizey, 2 * @sizex / 8.0),
                                     vec2(- @sizey, 4 * @sizex / 8.0)],
                                    vec2(0, 0))
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(0.0, 5 * @sizex / 8.0),
                                     vec2(- @sizey, 4 * @sizex / 8.0),
                                     vec2(- @sizey, 6 * @sizex / 8.0)],
                                    vec2(0, 0))
-    @shapes << CP::Shape::Poly.new(body,
+    @shapes << CP::Shape::Poly.new(@bodies[0],
                                    [vec2(0.0, 7 * @sizex / 8.0),
                                     vec2(- @sizey, 6 * @sizex / 8.0),
                                     vec2(- @sizey, 8.0 * @sizex / 8.0)],
                                    vec2(0, 0))
 
-    @shapes << CP::Shape::Circle.new(body, 1, vec2(0, @sizex / 8.0))
-    @shapes << CP::Shape::Circle.new(body, 1, vec2(0, 3 * @sizex / 8.0))
-    @shapes << CP::Shape::Circle.new(body, 1, vec2(0, 5 * @sizex / 8.0))
-    @shapes << CP::Shape::Circle.new(body, 1, vec2(0, 7 * @sizex / 8.0))
+    @shapes << CP::Shape::Circle.new(@bodies[0], 1, vec2(0, @sizex / 8.0))
+    @shapes << CP::Shape::Circle.new(@bodies[0], 1, vec2(0, 3 * @sizex / 8.0))
+    @shapes << CP::Shape::Circle.new(@bodies[0], 1, vec2(0, 5 * @sizex / 8.0))
+    @shapes << CP::Shape::Circle.new(@bodies[0], 1, vec2(0, 7 * @sizex / 8.0))
   end
 
   def create_bodies
-    @body = CP::StaticBody.new
+    @bodies << CP::StaticBody.new
   end
 
   def set_shapes_prop
@@ -81,9 +81,9 @@ class Spike < Obj
   def draw(offsetx, offsety)
     fx = @sizex * 1.0 / @image.width
     fy = @sizey * 1.0 / @image.height
-    x = @body.p.x - offsetx
-    y = @body.p.y - offsety
-    a = @body.a.radians_to_gosu
+    x = @bodies[0].p.x - offsetx
+    y = @bodies[0].p.y - offsety
+    a = @bodies[0].a.radians_to_gosu
     @image.draw_rot(x, y, 1, a, 0, 0, fx, fy)
   end
 end
