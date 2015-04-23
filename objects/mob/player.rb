@@ -131,7 +131,7 @@ class Player < Mob
       end
     end
 
-    if @cur_anim[1].nil?
+    if @cur_anim[1].nil? && @cur_anim[2].nil?
       @hide_time += 1
     else
       @hide_time = 0
