@@ -67,9 +67,9 @@ class GameWindow < Gosu::Window
 
       add_keyboard_controls
 
+      @level.space.reindex_static
       @level.space.step @dt
     end
-    puts SUBSTEPS
     camera_behaviour
   end
 

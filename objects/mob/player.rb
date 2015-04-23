@@ -15,10 +15,15 @@ class Player < Mob
                              Magick::Image.read('resources/images/sword.png')[0].flip!)
 
     @diameter = diameter
-
     create_bodies
     add_shapes
     set_shapes_prop
+
+    @hide_time = 0
+    @weapon_hidden = false
+    @alpha = 255
+
+    @init_pos = []
 
     @dir = 1
 
@@ -63,7 +68,9 @@ class Player < Mob
   def warp(vect)
     @shapes[0].body.p = vect
     @shapes[1].body.p = vect + vec2(@dir * (@diameter / 2 + 5), 15)
-    @init_pos = vect
+    @last = vect
+    @init_pos[0] = vect
+    @init_pos[1] = vect + vec2(@dir * (@diameter / 2 + 5), 15)
   end
 
   def add_to_space(space)
@@ -74,87 +81,107 @@ class Player < Mob
 
   def turn_left
     @shapes[0].body.t -= 600.0 / SUBSTEPS
-    @shapes[1].body.a = 3 * Math::PI / 2.0 - Math::PI / 18 if @shapes[1].body.a > 3 * Math::PI / 2.0 && !@attacking
     @dir = -1
   end
 
   def turn_right
     @shapes[0].body.t += 600.0 / SUBSTEPS
-    @shapes[1].body.a = 3 * Math::PI / 2.0 + Math::PI / 18 if @shapes[1].body.a < 3 * Math::PI / 2.0 && !@attacking
     @dir = 1
   end
 
   def accelerate_left
-    @shapes[0].body.apply_force((vec2(-1.0, 0.0) * (3000.0 / SUBSTEPS)),
-                                vec2(0.0, 0.0))
-    @shapes[1].body.p = @shapes[0].body.p + vec2(@dir * (@diameter / 2 + 5), 15) if @shapes[1].body.a > 3 * Math::PI / 2.0 && !@attacking
+    stop_idle_anim
+    set_animation(MOVEMENT, Anims::PLAYER["left"].dup, true)
+
   end
 
   def accelerate_right
-    @shapes[0].body.apply_force((vec2(1.0, 0.0) * (3000.0 / SUBSTEPS)),
-                                vec2(0.0, 0.0))
-    @shapes[1].body.p = @shapes[0].body.p + vec2(@dir * (@diameter / 2 + 5), 15) if @shapes[1].body.a < 3 * Math::PI / 2.0 && !@attacking
+    stop_idle_anim
+    set_animation(MOVEMENT, Anims::PLAYER["right"].dup, true)
   end
 
   def attack
-    @dir = -1 if 3 * Math::PI / 2.0 - @shapes[1].body.a > 0
-    @dir = 1 if 3 * Math::PI / 2.0 - @shapes[1].body.a < 0
-
-    @target_angle = @shapes[1].body.a + Math::PI / 2.0 * @dir unless @attacking
+    stop_idle_anim
+    set_animation(BEHAVIOUR, Anims::PLAYER["attackright"].dup) if @dir == 1 && !@attacking
+    set_animation(BEHAVIOUR, Anims::PLAYER["attackleft"].dup) if @dir == -1 && !@attacking
     @attacking = true
   end
 
   def jump
-    @shapes[0].body.apply_force((vec2(0.0, -1.0) * 90_000.0),
-                                vec2(0.0, 0.0)) if @jump
+    stop_idle_anim
+    over_write_animation(MOVEMENT, Anims::PLAYER["jump"].dup) if @jump
   end
 
   def do_behaviour(space)
-    Anims::PLAYER[0].do_animation(@bodies)
-    @dir = -1 if 3 * Math::PI / 2.0 - @shapes[1].body.a > 0
-    @dir = 1 if 3 * Math::PI / 2.0 - @shapes[1].body.a < 0
-    @shapes[1].body.p = @shapes[0].body.p + vec2(@dir * (@diameter / 2 + 5), 15)
-    puts @attacking
-    space.reindex_static
-    return unless @attacking
-    sword_go_up
-    sword_go_down
-    @target_angle = 3 * Math::PI / 2.0 + Math::PI / 18.0 * @dir if @target_angle * @dir <= @shapes[1].body.a * @dir
-    @attacking = false if (3 * Math::PI / 2.0 + Math::PI / 18.0 * @dir).round(4) == @shapes[1].body.a.round(4)
+    @bodies[1].p += @bodies[0].p - @last
+    @last = vec2(@bodies[0].p.x,@bodies[0].p.y)
+    @attacking = false if @cur_anim[1].nil?
+
+    unless @attacking && @cur_anim[2].nil?
+      set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionleft"].dup) if @dir == -1 && @bodies[1].a > 3 * Math::PI / 2 && !@weapon_hidden
+      set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionright"].dup) if @dir == 1 && @bodies[1].a < 3 * Math::PI / 2 && !@weapon_hidden
+    end
+
+    if @cur_anim[0].nil? && @cur_anim[1].nil?
+      rnd = Random.new
+      x = rnd.rand(10000)
+      if x == 1
+        set_animation(EXTRA, Anims::PLAYER["leftidle1"].dup) if @dir == -1
+        set_animation(EXTRA, Anims::PLAYER["rightidle1"].dup) if @dir == 1
+      end
+    end
+
+    if @cur_anim[1].nil?
+      @hide_time += 1
+    else
+      @hide_time = 0
+    end
+
+    if @hide_time > 400
+      hide_sword
+    else
+      show_sword
+    end
+
+    do_animations
   end
 
-  def sword_go_down
-    @shapes[1].body.a += 2 * Math::PI / 180.0 * @dir if ((@shapes[1].body.a > 3 *  Math::PI / 2.0 - Math::PI / 4 ) ||
-                                                         (@shapes[1].body.a < 3 *  Math::PI / 2.0 + Math::PI / 4 )) &&
-                                                        (3 * Math::PI / 2.0 + 1 * Math::PI / 18 != @target_angle &&
-                                                         3 * Math::PI / 2.0 - 1 * Math::PI / 18 != @target_angle) &&
-                                                        @attacking
+  def stop_idle_anim
+    unless @cur_anim[2].nil?
+      @cur_anim[2] = nil
+      @bodies[1].p = @bodies[0].p + vec2(@dir * (@diameter / 2 + 5), 15)
+      @bodies[1].a = 3 * Math::PI / 2 + @dir * Math::PI / 18
+    end
   end
 
-  def sword_go_up
-    @shapes[1].body.a -= 2 * Math::PI / 180.0 * @dir if (@shapes[1].body.a - @target_angle > 0 && @dir == 1) ||
-                                                        (@shapes[1].body.a - @target_angle < 0 && @dir == -1) &&
-                                                        @attacking
+  def hide_sword
+    @weapon_hidden = true if @alpha <= 0
+    @shapes[1].layers = Layer::NULL_LAYER
+    @alpha -= 1 if @alpha > 0
+  end
+
+  def show_sword
+    @weapon_hidden = false if @alpha >= 255
+    @shapes[1].layers = Layer::WEAPON
+    @alpha += 5 if @alpha < 255
   end
 
   def respawn
-    @shapes[0].body.p = @init_pos
-    @shapes[1].body.p = @init_pos + vec2(@dir * (@diameter / 2 + 5), -65)
+    @shapes[0].body.p = @init_pos[0]
+    @shapes[1].body.p = @init_pos[1]
   end
 
   def draw(offsetx, offsety)
     f = @diameter * 1.0 / @image.width
-    dir = -1 if 3 * Math::PI / 2.0 - @shapes[1].body.a > 0
-    dir = 1 if 3 * Math::PI / 2.0 - @shapes[1].body.a < 0
     x = @shapes[0].body.p.x - offsetx
     y = @shapes[0].body.p.y - offsety
-    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, f * dir, f)
+    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, f * @dir, f)
 
     fx = 20 * 1.0 / @sword.width
     fy = 65 * 1.0 / @sword.height
     x = @shapes[1].body.p.x - offsetx
     y = @shapes[1].body.p.y - offsety
     a = (@shapes[1].body.a + Math::PI).radians_to_gosu
-    @sword.draw_rot(x, y, 1, a, 0.5, 0, fx, fy)
+    @sword.draw_rot(x, y, 1, a, 0.5, 0, fx, fy, Gosu::Color.new(@alpha, 255, 255, 255))
   end
 end

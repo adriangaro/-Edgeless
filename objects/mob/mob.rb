@@ -3,10 +3,15 @@ require 'chipmunk'
 
 require_relative '../../utility/utility'
 require_relative '../obj'
+MOVEMENT = 0
+BEHAVIOUR = 1
+EXTRA = 2
 
 class Mob < Obj
+  attr_accessor :cur_anim
   def initialize(window, source)
     super window, source
+    @cur_anim = Array.new(3)
   end
 
   def warp(vect)
@@ -19,6 +24,36 @@ class Mob < Obj
   end
 
   def do_behaviour(_space)
+  end
+
+  def do_animations
+    @cur_anim.each do |anim|
+      next if anim.nil?
+      index = @cur_anim.index anim
+      do_animation_on_index(index)
+    end
+  end
+
+  def do_animation_on_index(index)
+    return if @cur_anim[index].nil?
+    unless @cur_anim[index].started
+      @cur_anim[index].started = true
+    end
+    if @cur_anim[index].finished
+      @cur_anim[index] = nil
+    else
+      @cur_anim[index].do_animation(@shapes)
+    end
+  end
+
+  def set_animation(index, anim, instant = false)
+    do_animation_on_index(index) if instant
+    @cur_anim[index] = anim if @cur_anim[index].nil?
+  end
+
+  def over_write_animation(index, anim, instant = false)
+    do_animation_on_index(index) if instant
+    @cur_anim[index] = anim
   end
 
   def draw(offsetx, offsety)

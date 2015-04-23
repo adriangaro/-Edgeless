@@ -9,7 +9,7 @@ require_all 'anim'
 
 module Anims
   KEYWORDS = {"player" => "Anims::PLAYER"}
-  PLAYER = []
+  PLAYER = {}
 end
 
 
@@ -55,8 +55,8 @@ def create_animations
           end
           animation.add_step(AnimationStep.new(move_vect,
                                                angle_change,
-                                               layer,
                                                angular_velocity,
+                                               layer,
                                                force,
                                                impulse),
                              pos,
@@ -66,6 +66,8 @@ def create_animations
       animation.add_missing_steps
     end
     first_word = item.split("_")[0]
-    eval(Anims::KEYWORDS[first_word]) << animation
+    name = item.split("_").drop(1).join.split(".")[0]
+    puts name
+    eval(Anims::KEYWORDS[first_word])[name] = animation
   end
 end

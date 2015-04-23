@@ -1,6 +1,0 @@
-0
-0 0,0 0 default default default default
-100 0,0 0 default default default default
-1
-0 0,0 0 default default default default
-100 100,100 10 default default default default
