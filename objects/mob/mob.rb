@@ -8,7 +8,11 @@ BEHAVIOUR = 1
 EXTRA = 2
 
 class Mob < Obj
-  attr_accessor :cur_anim
+  ATTACK_HOOKS = []
+  ATTACKED_HOOKS = []
+
+  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS
+  
   def initialize(window, source)
     super window, source
     @cur_anim = Array.new(3)
@@ -19,12 +23,28 @@ class Mob < Obj
     @init_pos = vect
   end
 
+  def set_stats(lives, dmg)
+    @lives = lives
+    @dmg = dmg
+  end
+
   def respawn
     @shapes[0].body.p = @init_pos
   end
 
-  def do_behaviour(_space)
+  def attacked_hook(attacker)
+    ATTACKED_HOOKS.each do |hook|
+      hook.call self, attacker
+    end
   end
+
+  def attack_hook(victim)
+    ATTACK_HOOKS.each do |hook|
+      hook.call self, victim
+    end
+  end
+
+  def do_behaviour(_space); end
 
   def do_animations
     @cur_anim.each do |anim|

@@ -8,8 +8,9 @@ require_all 'anim'
 
 
 module Anims
-  KEYWORDS = {"player" => "Anims::PLAYER"}
+  KEYWORDS = {"player" => "Anims::PLAYER", "squaremob" => "Anims::SQUARE_MOB"}
   PLAYER = {}
+  SQUARE_MOB = {}
 end
 
 
@@ -39,11 +40,11 @@ def create_animations
                 coord = arg.split(",").map { |x| x.to_i }
                 move_vect = vec2 coord[0], coord[1]
               elsif i == 2
-                angle_change = arg.to_i * Math::PI / 180
+                angle_change = arg.to_i * Math::PI / 180.0
               elsif i == 3
                 layer = arg.to_i 2
               elsif i == 4
-                angular_velocity = arg.to_i * Math::PI / 180
+                angular_velocity = arg.to_i * Math::PI / 180.0
               elsif i == 5
                 coord = arg.split(",").map { |x| x.to_i }
                 force = Force.new vec2(coord[0], coord[1]), vec2(coord[2], coord[3])

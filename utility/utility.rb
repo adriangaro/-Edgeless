@@ -33,3 +33,15 @@ end
 def sigmoid(t)
   1 / (1 + Math::E ** (-(2 * t - 1) * 5))
 end
+
+def get_object_from_shape(a, level)
+  level.mobs.find {|mob| mob.shapes.include? a}
+end
+
+def attack_hook(attacker_shape, victim_shape, level)
+  attacker = get_object_from_shape attacker_shape, level
+  victim = get_object_from_shape victim_shape, level
+
+  attacker.attack_hook victim
+  victim.attacked_hook attacker
+end

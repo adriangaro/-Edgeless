@@ -31,7 +31,7 @@ module Layer
   PLATFORM =         '01000000'.to_i 2
   SPIKE =            '00000100'.to_i 2
   MOB =              '11001110'.to_i 2
-  WEAPON =           '01000010'.to_i 2
+  WEAPON =           '00000010'.to_i 2
   JUMP_PAD =         '00001000'.to_i 2
 end
 

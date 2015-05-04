@@ -9,16 +9,17 @@ SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 class Player < Mob
   attr_accessor :jump
-  def initialize(window, diameter)
+  def initialize(window)
     super window, 'resources/images/player.png'
     @sword = Gosu::Image.new(window,
                              Magick::Image.read('resources/images/sword.png')[0].flip!)
 
-    @diameter = diameter
+    @diameter = 50
+
+    @ratio = @diameter * 1.0 / @image.width
     create_bodies
     add_shapes
     set_shapes_prop
-
     @hide_time = 0
     @weapon_hidden = false
     @alpha = 255
@@ -36,10 +37,10 @@ class Player < Mob
 
     @shapes << CP::Shape::Poly.new(@bodies[1],
                                    [vec2(0, 0),
-                                    vec2(65, 0),
-                                    vec2(65, -20),
-                                    vec2(0, -20)],
-                                   vec2(0, 10))
+                                    vec2(@sword.height * @ratio, 0),
+                                    vec2(@sword.height * @ratio, -@sword.width * @ratio),
+                                    vec2(0, -@sword.width * @ratio)],
+                                   vec2(0, @sword.width * @ratio / 2))
   end
 
   def set_shapes_prop
@@ -113,22 +114,29 @@ class Player < Mob
   end
 
   def do_behaviour(space)
-    @bodies[1].p += @bodies[0].p - @last
-    @last = vec2(@bodies[0].p.x,@bodies[0].p.y)
-    @attacking = false if @cur_anim[1].nil?
-
-    unless @attacking && @cur_anim[2].nil?
-      set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionleft"].dup) if @dir == -1 && @bodies[1].a > 3 * Math::PI / 2 && !@weapon_hidden
-      set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionright"].dup) if @dir == 1 && @bodies[1].a < 3 * Math::PI / 2 && !@weapon_hidden
-    end
-
     if @cur_anim[0].nil? && @cur_anim[1].nil?
       rnd = Random.new
-      x = rnd.rand(10000)
+      x = rnd.rand(3000)
       if x == 1
         set_animation(EXTRA, Anims::PLAYER["leftidle1"].dup) if @dir == -1
         set_animation(EXTRA, Anims::PLAYER["rightidle1"].dup) if @dir == 1
       end
+    end
+
+    set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionright"].dup) if @dir == 1 &&
+                                                                           @bodies[1].a < 3 * Math::PI / 2 &&
+                                                                           !@weapon_hidden
+    set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionleft"].dup) if @dir == -1 &&
+                                                                          @bodies[1].a > 3 * Math::PI / 2 &&
+                                                                          !@weapon_hidden
+
+    @bodies[1].p += @bodies[0].p - @last
+    @last = vec2(@bodies[0].p.x,@bodies[0].p.y)
+    @attacking = false if @cur_anim[1].nil?
+
+    if @weapon_hidden
+      @bodies[1].p = @bodies[0].p + vec2(@dir * (@diameter / 2 + 5), 15)
+      @bodies[1].a = 3 * Math::PI / 2 + @dir * Math::PI / 18
     end
 
     if @cur_anim[1].nil? && @cur_anim[2].nil?
@@ -142,7 +150,6 @@ class Player < Mob
     else
       show_sword
     end
-
     do_animations
   end
 
@@ -155,33 +162,34 @@ class Player < Mob
   end
 
   def hide_sword
-    @weapon_hidden = true if @alpha <= 0
+    @weapon_hidden = true
     @shapes[1].layers = Layer::NULL_LAYER
     @alpha -= 1 if @alpha > 0
   end
 
   def show_sword
-    @weapon_hidden = false if @alpha >= 255
+    @weapon_hidden = false
     @shapes[1].layers = Layer::WEAPON
     @alpha += 5 if @alpha < 255
   end
 
   def respawn
     @shapes[0].body.p = @init_pos[0]
-    @shapes[1].body.p = @init_pos[1]
   end
 
   def draw(offsetx, offsety)
-    f = @diameter * 1.0 / @image.width
     x = @shapes[0].body.p.x - offsetx
     y = @shapes[0].body.p.y - offsety
-    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, f * @dir, f)
+    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio)
 
-    fx = 20 * 1.0 / @sword.width
-    fy = 65 * 1.0 / @sword.height
+
     x = @shapes[1].body.p.x - offsetx
     y = @shapes[1].body.p.y - offsety
     a = (@shapes[1].body.a + Math::PI).radians_to_gosu
-    @sword.draw_rot(x, y, 1, a, 0.5, 0, fx, fy, Gosu::Color.new(@alpha, 255, 255, 255))
+    @sword.draw_rot(x, y, 2, a, 0.5, 0, @ratio, @ratio, Gosu::Color.new(@alpha, 255, 255, 255))
+  end
+
+  ATTACK_HOOKS << lambda do |attacker, victim|
+    puts "auch"
   end
 end

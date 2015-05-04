@@ -22,12 +22,12 @@ class Test < Level
   end
 
   def declare_obj
-    @player = Player.new @window, 50
+    @player = Player.new @window
 
     @platform1 = PlatformPoly.new @window,
                                   [vec2(-50.0, 0.0),
-                                   vec2(-50.0, 600.0),
-                                   vec2(0, 600.0),
+                                   vec2(-50.0, 800.0),
+                                   vec2(0, 800.0),
                                    vec2(0, 0)]
     @platform2 = PlatformPoly.new @window,
                                   [vec2(-50.0, 0.0),

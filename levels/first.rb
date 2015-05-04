@@ -12,6 +12,7 @@ require_relative '../utility/utility'
 require_relative '../objects/level_background'
 require_relative '../objects/mob/player'
 require_relative '../objects/mob/square_mob'
+require_relative '../objects/mob/triangle_mob'
 
 
 class First < Level
@@ -22,7 +23,7 @@ class First < Level
   end
 
   def declare_obj
-    @player = Player.new @window, 50
+    @player = Player.new @window
     @poly = PlatformPoly.new @window,
                              [vec2(-50.0, 0.0),
                               vec2(-50.0, 2000.0),
@@ -30,11 +31,11 @@ class First < Level
                               vec2(0, 0)]
     @level_border = LevelBorder.new @window, 2000, 480
 
-    @jump_pad = JumpPad.new @window, 45
-
-    @platform1 = Platform.new @window, 300, 50, -30
+    @jump_pad = JumpPad.new @window, 100, 45
 
     @square_mob = SquareMob.new @window, vec2(500, 300)
+
+    @triangle_mob = TriangleMob.new @window
 
     @background1 = LevelBackground.new @window,
                                        "resources/images/background1.png",
@@ -54,9 +55,9 @@ class First < Level
     @mobs << @player
     @objects << @poly
     @objects << @level_border
-    @objects << @platform1
     @objects << @jump_pad
     @mobs << @square_mob
+    @mobs << @triangle_mob
     @backgrounds << @background1
     @backgrounds << @background2
     @backgrounds << @background3
@@ -65,10 +66,10 @@ class First < Level
   def warp
     @player.warp vec2 120, 140
     @poly.warp vec2 0, 400
-    @platform1.warp vec2 400, 400
     @level_border.warp vec2 0, 0
     @jump_pad.warp vec2 900, 350
     @square_mob.warp vec2 300, 300
+    @triangle_mob.warp vec2 400, 300
     @background1.warp vec2 0, 0
     @background2.warp vec2 640, 0
     @background3.warp vec2 1200, 0

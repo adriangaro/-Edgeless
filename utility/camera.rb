@@ -5,11 +5,11 @@ require_relative 'utility'
 # Camera
 class CameraEdgeless
   attr_accessor :p, :moving
-  def initialize(vect, window)
+  def initialize(vect, window, level)
     @p = vect
     @window = window
     @moving = false
-
+    @level = level
     set_borders
   end
 
@@ -40,6 +40,7 @@ class CameraEdgeless
     offsetx = 0
     offsetx = position.x - @right_border if position.x > @right_border
     offsetx = position.x - @left_border if position.x < @left_border
+    offsetx = 0 if @level.level_border.sizex < Gosu::screen_width && @level.level_border.sizex < @window.width
     offsetx
   end
 
@@ -49,6 +50,7 @@ class CameraEdgeless
     offsety = 0
     offsety = position.y - @down_border if position.y > @down_border
     offsety = position.y - @up_border if position.y < @up_border
+    offsety = 0 if @level.level_border.sizey < Gosu::screen_height && @level.level_border.sizey < @window.height
     offsety
   end
 

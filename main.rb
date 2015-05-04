@@ -9,7 +9,7 @@ require_all 'anim'
 
 class GameWindow < Gosu::Window
   def initialize
-    super 800, 600, false
+    super Gosu::screen_width, Gosu::screen_height, true
     self.caption = 'Edgeless'
 
     initialize_level
@@ -19,13 +19,14 @@ class GameWindow < Gosu::Window
   end
 
   def initialize_level
-    @level = Test.new self
+    @level = First.new self
     @dt = 1.0 / 60.0
   end
 
   def initialize_camera
     @camera = CameraEdgeless.new vec2(@level.player.bodies[0].p.x, @level.player.bodies[0].p.y),
-                         self
+                                 self,
+                                 @level
     initialize_camera_behaviour
   end
 
@@ -40,32 +41,38 @@ class GameWindow < Gosu::Window
   def add_collision_handlers
     @level.space.add_collision_handler :ball,
                                        :platform,
-                                       PlayerPlatformCollisionHandler.new(@level.player)
+                                       PlayerPlatformCollisionHandler.new(@level)
     @level.space.add_collision_handler :ball,
                                        :platform_poly,
-                                       PlayerPlatformPolyCollisionHandler.new(@level.player)
+                                       PlayerPlatformPolyCollisionHandler.new(@level)
     @level.space.add_collision_handler :ball,
                                        :spikes_p,
-                                       PlayerSpikeCollisionHandler.new(@level.player)
+                                       PlayerSpikeCollisionHandler.new(@level)
+    @level.space.add_collision_handler :sword,
+                                       :mob,
+                                       TestCollisionHandler.new(@level)
     @level.space.add_collision_handler :ball,
                                        :jump_pad,
-                                       PlayerJumpPadCollisionHandler.new(@level.player, @level)
+                                       MobJumpPadCollisionHandler.new(@level)
+    @level.space.add_collision_handler :mob,
+                                       :jump_pad,
+                                       MobJumpPadCollisionHandler.new(@level)
     @level.space.add_collision_handler :border_bottom,
                                        :mob,
-                                       MobBorderCollisionHandler.new(@level.player, @level)
+                                       MobBorderCollisionHandler.new(@level)
     @level.space.add_collision_handler :border_bottom,
                                        :ball,
-                                       MobBorderCollisionHandler.new(@level.player, @level)
+                                       MobBorderCollisionHandler.new(@level)
   end
 
   def update
     SUBSTEPS.times do
+      add_keyboard_controls
+
       @level.mobs.each do |mob|
         mob.shapes[0].body.reset_forces
         mob.do_behaviour @level.space
       end
-
-      add_keyboard_controls
 
       @level.space.reindex_static
       @level.space.step @dt

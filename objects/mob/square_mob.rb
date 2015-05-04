@@ -7,22 +7,18 @@ require_relative '../obj'
 require_relative 'mob'
 
 class SquareMob < Mob
-  def initialize(window, finish, color = Gosu::Color.new(232, 86, 86))
+  def initialize(window, finish)
     super window, 'resources/images/square_mob.png'
     @window = window
-
+    @eyes = Gosu::Image.new(window, 'resources/images/square_mob_eyes.png')
     @finish_pos = finish
-    @change = true
-    @color = color
-
-
-
+    @where = "start"
+    @last = vec2(0, 0)
+    @ratio = 50.0 / @image.width
     @vertices = [vec2(-50.0, 0.0),
                  vec2(-50.0, 50.0),
                  vec2(0.0, 50.0),
                  vec2(0.0, 0.0)]
-
-    @image = polygon_image(@vertices)
 
     create_bodies
     add_shapes
@@ -32,7 +28,7 @@ class SquareMob < Mob
   def add_shapes
     @shapes << CP::Shape::Poly.new(@bodies[0],
                                    @vertices,
-                                   vec2(0, 0))
+                                   vec2(25, -25))
   end
 
   def set_shapes_prop
@@ -49,24 +45,6 @@ class SquareMob < Mob
     @bodies << CP::Body.new(10.0, 1000)
   end
 
-  def polygon_image(vertices)
-    maxx = vertices.map { |v| v.x.abs }.max
-    maxy = vertices.map { |v| v.y.abs }.max
-
-    box_image = Magick::Image.new(maxy + 1,
-                                  maxx + 1) { self.background_color = 'transparent' }
-    gc = Magick::Draw.new
-    gc.stroke '#' + @color.red.to_s(16) + @color.green.to_s(16) + @color.blue.to_s(16)  + 255.to_s(16)
-    gc.fill '#' + @color.red.to_s(16) + @color.green.to_s(16) + @color.blue.to_s(16)  + 255.to_s(16)
-    gc.stroke_width(1)
-    draw_vertices = vertices.map { |v| [v.y.abs, v.x.abs] }.flatten
-    gc.polygon(*draw_vertices)
-    gc.draw box_image
-    puts box_image
-    Gosu::Image.new @window, box_image
-  end
-
-
   def warp(vect)
     @shapes[0].body.p = vect
     @init_pos = vect
@@ -80,19 +58,23 @@ class SquareMob < Mob
   end
 
   def do_behaviour(space)
-    @dir = ((@finish_pos - @init_pos).x / 0).infinite?
-
-    @change = false if @dir * @shapes[0].body.p.x > @dir * @finish_pos.x
-
-    @change = true if @dir * @shapes[0].body.p.x < @dir * @init_pos.x
-
-    if @change
-      @shapes[0].body.apply_force vec2(1, 1) * @dir * 300, vec2(-25, -25)
-      @shapes[0].body.ang_vel = @dir * Math::PI / 4
+    @where = "finish" if (bodies[0].p.x > @finish_pos.x && @finish_pos.x > @init_pos.x) || (bodies[0].p.x < @finish_pos.x && @finish_pos.x < @init_pos.x)
+    @where = "start" if  (@finish_pos.x > @init_pos.x && @init_pos.x > bodies[0].p.x) || (@finish_pos.x < @init_pos.x && @init_pos.x < bodies[0].p.x)
+    if @where == "start"
+      if @finish_pos.x > @init_pos.x
+        set_animation(MOVEMENT, Anims::SQUARE_MOB["right"].dup, true)
+      else
+        set_animation(MOVEMENT, Anims::SQUARE_MOB["left"].dup, true)
+      end
     else
-      @shapes[0].body.apply_force vec2(-1, 1) * @dir * 300, vec2(25, -25)
-      @shapes[0].body.ang_vel = - @dir * Math::PI / 4
+      if @finish_pos.x > @init_pos.x
+        set_animation(MOVEMENT, Anims::SQUARE_MOB["left"].dup, true)
+      else
+        set_animation(MOVEMENT, Anims::SQUARE_MOB["right"].dup, true)
+      end
     end
+    @dir = (@bodies[0].p - @last).x / (@bodies[0].p - @last).x.abs
+    @last = vec2(@bodies[0].p.x, @bodies[0].p.y)
   end
 
   def respawn
@@ -100,11 +82,15 @@ class SquareMob < Mob
   end
 
   def draw(offsetx, offsety)
-    fx = 50 * 1.0 / @image.width
-    fy = 50 * 1.0 / @image.height
     x = @bodies[0].p.x - offsetx
     y = @bodies[0].p.y - offsety
     a = @bodies[0].a.radians_to_gosu
-    @image.draw_rot(x, y, 1, a, 0, 0, fx, fy)
+    @image.draw_rot(x, y, 1, a, 0.5, 0.5, @ratio, @ratio)
+
+    @eyes.draw_rot(x + 5 * @dir, y - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio)
+  end
+
+  ATTACKED_HOOKS << lambda do |victim, attacker|
+    victim.bodies[0].apply_impulse vec2(0, -9000), vec2(0, 0)
   end
 end
