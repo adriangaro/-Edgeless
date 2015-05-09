@@ -44,22 +44,24 @@ class Test < Level
 
     @square_mob = SquareMob.new @window, vec2(1100, 500)
 
+    @triangle_mob = TriangleMob.new @window
+
     @level_border = LevelBorder.new @window, 1200, 800
 
     @background1 = LevelBackground.new @window,
                                        "resources/images/background1.png",
-                                       600,
-                                       400
+                                       700,
+                                       500
 
     @background2 = LevelBackground.new @window,
                                        "resources/images/background2.png",
-                                       600,
-                                       400
+                                       500,
+                                       500
 
     @background3 = LevelBackground.new @window,
                                        "resources/images/background3.png",
                                        1200,
-                                       400
+                                       300
   end
 
   def add_objects
@@ -71,6 +73,7 @@ class Test < Level
 
     @mobs << @player
     @mobs << @square_mob
+    @mobs << @triangle_mob
 
     @backgrounds << @background1
     @backgrounds << @background2
@@ -88,9 +91,10 @@ class Test < Level
 
     @player.warp vec2 50, 200
     @square_mob.warp vec2 900, 500
+    @triangle_mob.warp vec2 500, 300
 
-    @background1.warp vec2 0, 400
-    @background2.warp vec2 600, 400
+    @background1.warp vec2 0, 300
+    @background2.warp vec2 700, 300
     @background3.warp vec2 0, 0
   end
 

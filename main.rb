@@ -19,7 +19,7 @@ class GameWindow < Gosu::Window
   end
 
   def initialize_level
-    @level = First.new self
+    @level = Test.new self
     @dt = 1.0 / 60.0
   end
 

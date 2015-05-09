@@ -7,6 +7,7 @@ require_relative '../obj'
 require_relative 'mob'
 
 class SquareMob < Mob
+  attr_accessor :init_pos, :finish_pos
   def initialize(window, finish)
     super window, 'resources/images/square_mob.png'
     @window = window
@@ -23,6 +24,7 @@ class SquareMob < Mob
     create_bodies
     add_shapes
     set_shapes_prop
+    init_hooks
   end
 
   def add_shapes
@@ -62,15 +64,15 @@ class SquareMob < Mob
     @where = "start" if  (@finish_pos.x > @init_pos.x && @init_pos.x > bodies[0].p.x) || (@finish_pos.x < @init_pos.x && @init_pos.x < bodies[0].p.x)
     if @where == "start"
       if @finish_pos.x > @init_pos.x
-        set_animation(MOVEMENT, Anims::SQUARE_MOB["right"].dup, true)
+        set_animation(MOVEMENT, get_animation("squaremob", "right").dup, true)
       else
-        set_animation(MOVEMENT, Anims::SQUARE_MOB["left"].dup, true)
+        set_animation(MOVEMENT, get_animation("squaremob", "left").dup, true)
       end
     else
       if @finish_pos.x > @init_pos.x
-        set_animation(MOVEMENT, Anims::SQUARE_MOB["left"].dup, true)
+        set_animation(MOVEMENT, get_animation("squaremob", "left").dup, true)
       else
-        set_animation(MOVEMENT, Anims::SQUARE_MOB["right"].dup, true)
+        set_animation(MOVEMENT, get_animation("squaremob", "right").dup, true)
       end
     end
     @dir = (@bodies[0].p - @last).x / (@bodies[0].p - @last).x.abs
@@ -81,6 +83,24 @@ class SquareMob < Mob
     @shapes[0].body.p = @init_pos
   end
 
+  def init_hooks
+    ATTACKED_HOOKS << lambda do |victim, attacker|
+      if @where == "start"
+        if @finish_pos.x > @init_pos.x
+          victim.bodies[0].apply_impulse vec2(-2000, -2000), vec2(0, 0)
+        else
+          victim.bodies[0].apply_impulse vec2(2000, -2000), vec2(0, 0)
+        end
+      else
+        if @finish_pos.x > @init_pos.x
+          victim.bodies[0].apply_impulse vec2(2000, -2000), vec2(0, 0)
+        else
+          victim.bodies[0].apply_impulse vec2(-2000, -2000), vec2(0, 0)
+        end
+      end
+    end
+  end
+
   def draw(offsetx, offsety)
     x = @bodies[0].p.x - offsetx
     y = @bodies[0].p.y - offsety
@@ -88,9 +108,5 @@ class SquareMob < Mob
     @image.draw_rot(x, y, 1, a, 0.5, 0.5, @ratio, @ratio)
 
     @eyes.draw_rot(x + 5 * @dir, y - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio)
-  end
-
-  ATTACKED_HOOKS << lambda do |victim, attacker|
-    victim.bodies[0].apply_impulse vec2(0, -9000), vec2(0, 0)
   end
 end

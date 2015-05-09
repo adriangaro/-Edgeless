@@ -8,9 +8,14 @@ require_all 'anim'
 
 
 module Anims
-  KEYWORDS = {"player" => "Anims::PLAYER", "squaremob" => "Anims::SQUARE_MOB"}
+  KEYWORDS = { "player" => "Anims::PLAYER", "squaremob" => "Anims::SQUARE_MOB", "trianglemob" => "Anims::TRIANGLE_MOB" }
   PLAYER = {}
   SQUARE_MOB = {}
+  TRIANGLE_MOB = {}
+end
+
+def get_animation(mob, name)
+  eval(Anims::KEYWORDS[mob])[name]
 end
 
 

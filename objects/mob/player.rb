@@ -92,25 +92,25 @@ class Player < Mob
 
   def accelerate_left
     stop_idle_anim
-    set_animation(MOVEMENT, Anims::PLAYER["left"].dup, true)
+    set_animation(MOVEMENT, get_animation("player", "left").dup, true)
 
   end
 
   def accelerate_right
     stop_idle_anim
-    set_animation(MOVEMENT, Anims::PLAYER["right"].dup, true)
+    set_animation(MOVEMENT, get_animation("player", "right").dup, true)
   end
 
   def attack
     stop_idle_anim
-    set_animation(BEHAVIOUR, Anims::PLAYER["attackright"].dup) if @dir == 1 && !@attacking
-    set_animation(BEHAVIOUR, Anims::PLAYER["attackleft"].dup) if @dir == -1 && !@attacking
+    set_animation(BEHAVIOUR, get_animation("player", "attackright").dup) if @dir == 1 && !@attacking
+    set_animation(BEHAVIOUR, get_animation("player", "attackleft").dup) if @dir == -1 && !@attacking
     @attacking = true
   end
 
   def jump
     stop_idle_anim
-    over_write_animation(MOVEMENT, Anims::PLAYER["jump"].dup) if @jump
+    over_write_animation(MOVEMENT, get_animation("player", "jump").dup) if @jump
   end
 
   def do_behaviour(space)
@@ -118,15 +118,15 @@ class Player < Mob
       rnd = Random.new
       x = rnd.rand(3000)
       if x == 1
-        set_animation(EXTRA, Anims::PLAYER["leftidle1"].dup) if @dir == -1
-        set_animation(EXTRA, Anims::PLAYER["rightidle1"].dup) if @dir == 1
+        set_animation(EXTRA, get_animation("player", "leftidle1").dup) if @dir == -1
+        set_animation(EXTRA, get_animation("player", "rightidle1").dup) if @dir == 1
       end
     end
 
-    set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionright"].dup) if @dir == 1 &&
+    set_animation(BEHAVIOUR, get_animation("player", "changedirectionright").dup) if @dir == 1 &&
                                                                            @bodies[1].a < 3 * Math::PI / 2 &&
                                                                            !@weapon_hidden
-    set_animation(BEHAVIOUR, Anims::PLAYER["changedirectionleft"].dup) if @dir == -1 &&
+    set_animation(BEHAVIOUR, get_animation("player", "changedirectionleft").dup) if @dir == -1 &&
                                                                           @bodies[1].a > 3 * Math::PI / 2 &&
                                                                           !@weapon_hidden
 

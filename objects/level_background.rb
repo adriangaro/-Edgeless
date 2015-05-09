@@ -52,10 +52,10 @@ class LevelBackground < Obj
 
     f = 0
 
-    min = [level.player.bodies[0].p.x + 15 - (@shapes[0].body.p.x - 200),
-           level.player.bodies[0].p.y + 15 - (@shapes[0].body.p.y - 200),
-           (@shapes[0].body.p.x + @sizex + 200) - level.player.bodies[0].p.x + 15,
-           (@shapes[0].body.p.y + @sizex + 200) - level.player.bodies[0].p.y + 15].min
+    min = [level.player.bodies[0].p.x - (@shapes[0].body.p.x - 200),
+           level.player.bodies[0].p.y - (@shapes[0].body.p.y - 200),
+           (@shapes[0].body.p.x + @sizex + 200) - level.player.bodies[0].p.x,
+           (@shapes[0].body.p.y + @sizey + 200) - level.player.bodies[0].p.y].min
     f = 1 if min > 200
     f = min / 200.0 if min < 200
     c = Gosu::Color.new(255 * f, 255, 255, 255)
