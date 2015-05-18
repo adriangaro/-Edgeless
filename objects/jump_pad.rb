@@ -18,7 +18,7 @@ class JumpPad < Obj
                       vec2(0, sizex)]
 
     @image = polygon_image(@shape_vertices)
-
+    @should_draw = true
     create_bodies
     add_shapes
     set_shapes_prop
@@ -34,7 +34,7 @@ class JumpPad < Obj
       shape.body.v = vec2 0.0, 0.0
       shape.e = 1
       shape.body.a = 3 * Math::PI / 2.0 + angle / 180.0 * Math::PI
-      shape.collision_type = :jump_pad
+      shape.collision_type = Type::JUMP_PAD
       shape.group = Group::JUMP_PAD
       shape.layers = Layer::JUMP_PAD
     end
@@ -62,9 +62,17 @@ class JumpPad < Obj
   end
 
   def draw(offsetx, offsety)
-    x = @bodies[0].p.x - offsetx
-    y = @bodies[0].p.y - offsety
-    a = @bodies[0].a.radians_to_gosu
-    @image.draw_rot(x, y, 1, a, 0, 0)
+    if(@should_draw)
+      offsetsx = [offsetx]
+      offsetsy = [offsety]
+      offsetsy << level_enter_animation_do
+      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[0].a.radians_to_gosu
+      @image.draw_rot(x, y, 1, a, 0, 0, 1, 1, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+    else
+      level_enter_animation_init
+    end
+    puts 5
   end
 end

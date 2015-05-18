@@ -60,7 +60,7 @@ class Spike < Obj
       @shapes[i].body.v = vec2 0.0, 0.0
       @shapes[i].e = 0.3
       @shapes[i].body.a = 3 * Math::PI / 2.0 + @angle / 180.0 * Math::PI
-      @shapes[i].collision_type = :spikes
+      @shapes[i].collision_type = Type::SPIKE
       @shapes[i].group = Group::SPIKE
       @shapes[i].layers = Layer::SPIKE
     end
@@ -72,18 +72,25 @@ class Spike < Obj
       @shapes[i + 4].body.v = vec2 0.0, 0.0
       @shapes[i + 4].e = 0.3
       @shapes[i + 4].body.a = 3 * Math::PI / 2.0 + @angle / 180.0 * Math::PI
-      @shapes[i + 4].collision_type = :spikes_t
+      @shapes[i + 4].collision_type = Type::SPIKE_TOP
       @shapes[i + 4].group = Group::SPIKE
       @shapes[i + 4].layers = Layer::SPIKE
     end
   end
 
   def draw(offsetx, offsety)
-    fx = @sizex * 1.0 / @image.width
-    fy = @sizey * 1.0 / @image.height
-    x = @bodies[0].p.x - offsetx
-    y = @bodies[0].p.y - offsety
-    a = @bodies[0].a.radians_to_gosu
-    @image.draw_rot(x, y, 1, a, 0, 0, fx, fy)
+    if(@should_draw)
+      fx = @sizex * 1.0 / @image.width
+      fy = @sizey * 1.0 / @image.height
+      offsetsx = [offsetx]
+      offsetsy = [offsety]
+      offsetsy << level_enter_animation_do
+      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[0].a.radians_to_gosu
+      @image.draw_rot(x, y, 1, a, 0, 0, fx, fy, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+    else
+      level_enter_animation_init
+    end
   end
 end

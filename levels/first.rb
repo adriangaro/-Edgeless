@@ -6,10 +6,10 @@ require_relative '../objects/spike'
 require_relative '../objects/obj'
 require_relative '../objects/platform'
 require_relative '../objects/jump_pad'
-require_relative '../objects/level_border'
+require_relative '../objects/util/level_border'
 require_relative '../objects/platform_poly'
 require_relative '../utility/utility'
-require_relative '../objects/level_background'
+require_relative '../objects/util/level_background'
 require_relative '../objects/mob/player'
 require_relative '../objects/mob/square_mob'
 require_relative '../objects/mob/triangle_mob'
@@ -17,7 +17,7 @@ require_relative '../objects/mob/triangle_mob'
 
 class First < Level
   def initialize(window)
-    super window
+    super window, 2000, 480
     @space.damping = 0.8
     @space.gravity = vec2 0, 20
   end
@@ -29,7 +29,6 @@ class First < Level
                               vec2(-50.0, 2000.0),
                               vec2(0, 2000.0),
                               vec2(0, 0)]
-    @level_border = LevelBorder.new @window, 2000, 480
 
     @jump_pad = JumpPad.new @window, 100, 45
 
@@ -54,7 +53,6 @@ class First < Level
   def add_objects
     @mobs << @player
     @objects << @poly
-    @objects << @level_border
     @objects << @jump_pad
     @mobs << @square_mob
     @mobs << @triangle_mob
@@ -66,8 +64,7 @@ class First < Level
   def warp
     @player.warp vec2 120, 140
     @poly.warp vec2 0, 400
-    @level_border.warp vec2 0, 0
-    @jump_pad.warp vec2 900, 350
+    @jump_pad.warp vec2 1800, 350
     @square_mob.warp vec2 300, 300
     @triangle_mob.warp vec2 400, 300
     @background1.warp vec2 0, 0

@@ -8,7 +8,7 @@ SUBSTEPS = 6
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 class Player < Mob
-  attr_accessor :jump
+  attr_accessor :jump, :miliseconds_level
   def initialize(window)
     super window, 'resources/images/player.png'
     @sword = Gosu::Image.new(window,
@@ -48,7 +48,7 @@ class Player < Mob
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0
     @shapes[0].body.a = Math::PI / 2.0
-    @shapes[0].collision_type = :ball
+    @shapes[0].collision_type = Type::PLAYER
     @shapes[0].group = Group::PLAYER
     @shapes[0].layers = Layer::PLAYER
 
@@ -56,7 +56,7 @@ class Player < Mob
     @shapes[1].body.v = vec2 0.0, 0.0
     @shapes[1].e = 0
     @shapes[1].body.a = 3 * Math::PI / 2.0 + Math::PI / 18
-    @shapes[1].collision_type = :sword
+    @shapes[1].collision_type = Type::WEAPON
     @shapes[1].group = Group::WEAPON
     @shapes[1].layers = Layer::WEAPON
   end
@@ -178,15 +178,17 @@ class Player < Mob
   end
 
   def draw(offsetx, offsety)
-    x = @shapes[0].body.p.x - offsetx
-    y = @shapes[0].body.p.y - offsety
-    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio)
+    offsetsx = [offsetx]
+    offsetsy = [offsety]
+    offsetsy << level_enter_animation_do
+    x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+    y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
 
-
-    x = @shapes[1].body.p.x - offsetx
-    y = @shapes[1].body.p.y - offsety
+    x = @bodies[1].p.x - draw_offsets(offsetsx, offsetsy).x
+    y = @bodies[1].p.y - draw_offsets(offsetsx, offsetsy).y
     a = (@shapes[1].body.a + Math::PI).radians_to_gosu
-    @sword.draw_rot(x, y, 2, a, 0.5, 0, @ratio, @ratio, Gosu::Color.new(@alpha, 255, 255, 255))
+    @sword.draw_rot(x, y, 2, a, 0.5, 0, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255))
   end
 
   ATTACK_HOOKS << lambda do |attacker, victim|

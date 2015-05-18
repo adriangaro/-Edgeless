@@ -16,10 +16,11 @@ class GameWindow < Gosu::Window
     initialize_camera
     add_collision_handlers
     create_animations
+
   end
 
   def initialize_level
-    @level = Test.new self
+    @level = First.new self
     @dt = 1.0 / 60.0
   end
 
@@ -39,45 +40,51 @@ class GameWindow < Gosu::Window
   end
 
   def add_collision_handlers
-    @level.space.add_collision_handler :ball,
-                                       :platform,
+    @level.space.add_collision_handler Type::PLAYER,
+                                       Type::PLATFORM,
                                        PlayerPlatformCollisionHandler.new(@level)
-    @level.space.add_collision_handler :ball,
-                                       :platform_poly,
-                                       PlayerPlatformPolyCollisionHandler.new(@level)
-    @level.space.add_collision_handler :ball,
-                                       :spikes_p,
+    @level.space.add_collision_handler Type::PLAYER,
+                                       Type::SPIKE_TOP,
                                        PlayerSpikeCollisionHandler.new(@level)
-    @level.space.add_collision_handler :sword,
-                                       :mob,
+    @level.space.add_collision_handler Type::WEAPON,
+                                       Type::MOB,
                                        TestCollisionHandler.new(@level)
-    @level.space.add_collision_handler :ball,
-                                       :jump_pad,
+    @level.space.add_collision_handler Type::PLAYER,
+                                       Type::JUMP_PAD,
                                        MobJumpPadCollisionHandler.new(@level)
-    @level.space.add_collision_handler :mob,
-                                       :jump_pad,
+    @level.space.add_collision_handler Type::MOB,
+                                       Type::JUMP_PAD,
                                        MobJumpPadCollisionHandler.new(@level)
-    @level.space.add_collision_handler :border_bottom,
-                                       :mob,
+    @level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
+                                       Type::MOB,
                                        MobBorderCollisionHandler.new(@level)
-    @level.space.add_collision_handler :border_bottom,
-                                       :ball,
+    @level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
+                                       Type::PLAYER,
                                        MobBorderCollisionHandler.new(@level)
+    Type::TYPES.times do |x|
+      @level.space.add_collision_handler Type::CAMERA,
+                                         x,
+                                         CameraObjectCollisionHandler.new(@level)
+    end
   end
 
   def update
-    SUBSTEPS.times do
-      add_keyboard_controls
+    if(@level.player.miliseconds_level < 0)
+      SUBSTEPS.times do
+        add_keyboard_controls
 
-      @level.mobs.each do |mob|
-        mob.shapes[0].body.reset_forces
-        mob.do_behaviour @level.space
+        @level.mobs.each do |mob|
+          mob.shapes[0].body.reset_forces
+          mob.do_behaviour @level.space
+        end
+
+        draw_off = @camera.get_draw_offset @level
+        @level.camera.follow_camera(draw_off.x, draw_off.y)
+        @level.space.reindex_static
+        @level.space.step @dt
       end
-
-      @level.space.reindex_static
-      @level.space.step @dt
+      camera_behaviour
     end
-    camera_behaviour
   end
 
   def camera_behaviour
@@ -122,7 +129,6 @@ class GameWindow < Gosu::Window
 
   def draw
     draw_off = @camera.get_draw_offset @level
-
     @level.objects.each do |obj|
       obj.draw draw_off.x, draw_off.y
     end

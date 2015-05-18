@@ -13,6 +13,7 @@ class PlatformPoly < Obj
     @bodies = []
     @image = polygon_image(vertices)
     @vertices = vertices
+    @should_draw = true
 
     create_bodies
     add_shapes
@@ -29,7 +30,7 @@ class PlatformPoly < Obj
       shape.body.v = vec2 0.0, 0.0
       shape.e = 0
       shape.body.a = 3 * Math::PI / 2.0
-      shape.collision_type = :platform_poly
+      shape.collision_type = Type::PLATFORM
       shape.group = Group::PLATFORM
       shape.layers = Layer::PLATFORM
     end
@@ -54,9 +55,16 @@ class PlatformPoly < Obj
   end
 
   def draw(offsetx, offsety)
-    x = @bodies[0].p.x - offsetx
-    y = @bodies[0].p.y - offsety
-    a = @bodies[0].a.radians_to_gosu
-    @image.draw_rot(x, y, 1, a, 0, 0)
+    if(@should_draw)
+      offsetsx = [offsetx]
+      offsetsy = [offsety]
+      offsetsy << level_enter_animation_do
+      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[0].a.radians_to_gosu
+      @image.draw_rot(x, y, 1, a, 0, 0, 1, 1, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+    else
+      level_enter_animation_init
+    end
   end
 end

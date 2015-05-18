@@ -5,25 +5,35 @@ require_relative '../objects/mob/player'
 require_relative '../objects/spike'
 require_relative '../objects/obj'
 require_relative '../objects/platform'
-require_relative '../objects/level_background'
-require_relative '../objects/level_border'
+require_relative '../objects/util/level_background'
+require_relative '../objects/util/level_border'
+require_relative '../objects/util/camera_collider'
 require_relative '../objects/platform_poly'
 require_relative '../utility/utility'
 
 class Level
-  attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space
+  attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space, :camera
 
-  def initialize(window)
+  def initialize(window, sizex, sizey)
     @window = window
     @space = CP::Space.new
     @objects = []
     @mobs = []
     @backgrounds = []
 
+    @level_border = LevelBorder.new @window, sizex, sizey
+    @objects << @level_border
+    @level_border.warp vec2 0, 0
+
+    @camera = CameraColliderObject.new @window
+    @objects << @camera
+    @camera.warp vec2 0, 0
+    
     declare_obj
     warp
     add_objects
     add_to_space
+    init_level
   end
 
   def declare_obj
@@ -41,6 +51,15 @@ class Level
     end
     @backgrounds.each do |background|
       background.add_to_space @space
+    end
+  end
+
+  def init_level
+    @objects.each do |x|
+      x.level_enter_animation_init
+    end
+    @mobs.each do |x|
+      x.level_enter_animation_init
     end
   end
 

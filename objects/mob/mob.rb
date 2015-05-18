@@ -12,7 +12,7 @@ class Mob < Obj
   ATTACKED_HOOKS = []
 
   attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS
-  
+
   def initialize(window, source)
     super window, source
     @cur_anim = Array.new(3)
@@ -77,12 +77,12 @@ class Mob < Obj
   end
 
   def draw(offsetx, offsety)
-    @image.draw_rot(@shapes[0].body.p.x - offsetx,
-                    @shapes[0].body.p.y - offsety,
-                    1,
-                    @shapes[0].body.a.radians_to_gosu,
-                    0,
-                    0
-                    )
+    offsetsx = [offsetx]
+    offsetsy = [offsety]
+    distance = draw_offsets(offsetsx, offsetsy).y
+    offsetsy << cubic_bezier(distance)
+    x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+    y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+    @image.draw_rot(x, y, 1, @shapes[0].body.a.radians_to_gosu, 0, 0)
   end
 end

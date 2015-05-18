@@ -6,17 +6,17 @@ require_relative '../objects/spike'
 require_relative '../objects/obj'
 require_relative '../objects/platform'
 require_relative '../objects/jump_pad'
-require_relative '../objects/level_border'
+require_relative '../objects/util/level_border'
 require_relative '../objects/platform_poly'
 require_relative '../utility/utility'
-require_relative '../objects/level_background'
+require_relative '../objects/util/level_background'
 require_relative '../objects/mob/player'
 require_relative '../objects/mob/square_mob'
 
 
 class Test < Level
   def initialize(window)
-    super window
+    super window, 1200, 800
     @space.damping = 0.8
     @space.gravity = vec2 0, 20
   end
@@ -46,8 +46,6 @@ class Test < Level
 
     @triangle_mob = TriangleMob.new @window
 
-    @level_border = LevelBorder.new @window, 1200, 800
-
     @background1 = LevelBackground.new @window,
                                        "resources/images/background1.png",
                                        700,
@@ -69,7 +67,6 @@ class Test < Level
     @objects << @platform2
     @objects << @platform3
     @objects << @jump_pad1
-    @objects << @level_border
 
     @mobs << @player
     @mobs << @square_mob
@@ -86,8 +83,6 @@ class Test < Level
     @platform3.warp vec2 0, 450
 
     @jump_pad1.warp vec2 400, 750
-
-    @level_border.warp vec2 0, 0
 
     @player.warp vec2 50, 200
     @square_mob.warp vec2 900, 500

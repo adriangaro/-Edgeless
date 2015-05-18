@@ -1,8 +1,8 @@
 require 'gosu'
 require 'chipmunk'
 
-require_relative '../utility/utility'
-require_relative 'obj'
+require_relative '../../utility/utility'
+require_relative '../obj'
 
 class LevelBorder < Obj
   attr_accessor :sizex, :sizey
@@ -11,7 +11,7 @@ class LevelBorder < Obj
     @window = window
     @shapes = []
     @bodies = []
-
+    @should_draw = true
     @sizex = sizex
     @sizey = sizey
 
@@ -53,7 +53,7 @@ class LevelBorder < Obj
       shape.body.v = vec2 0.0, 0.0
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0
-      shape.collision_type = :border
+      shape.collision_type = Type::LEVEL_BORDER
       shape.group = Group::LEVEL_BORDER
       shape.layers = Layer::LEVEL_BORDER
     end
@@ -62,7 +62,7 @@ class LevelBorder < Obj
     @shapes[3].body.v = vec2 0.0, 0.0
     @shapes[3].e = 0.3
     @shapes[3].body.a = 3 * Math::PI / 2.0
-    @shapes[3].collision_type = :border_bottom
+    @shapes[3].collision_type = Type::LEVEL_BORDER_BOTTOM
     @shapes[3].group = Group::LEVEL_BORDER
     @shapes[3].layers = Layer::LEVEL_BORDER
   end

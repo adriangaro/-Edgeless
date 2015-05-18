@@ -38,7 +38,7 @@ class SquareMob < Mob
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0.3
     @shapes[0].body.a = 3 * Math::PI / 2.0
-    @shapes[0].collision_type = :mob
+    @shapes[0].collision_type = Type::MOB
     @shapes[0].group = Group::MOB
     @shapes[0].layers = Layer::MOB
   end
@@ -50,6 +50,7 @@ class SquareMob < Mob
   def warp(vect)
     @shapes[0].body.p = vect
     @init_pos = vect
+    @dir = 1
   end
 
   def add_to_space(space)
@@ -102,11 +103,18 @@ class SquareMob < Mob
   end
 
   def draw(offsetx, offsety)
-    x = @bodies[0].p.x - offsetx
-    y = @bodies[0].p.y - offsety
-    a = @bodies[0].a.radians_to_gosu
-    @image.draw_rot(x, y, 1, a, 0.5, 0.5, @ratio, @ratio)
+    if(@should_draw)
+      offsetsx = [offsetx]
+      offsetsy = [offsety]
+      offsetsy << level_enter_animation_do
+      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[0].a.radians_to_gosu
+      @image.draw_rot(x, y, 1, a, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
 
-    @eyes.draw_rot(x + 5 * @dir, y - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio)
+      @eyes.draw_rot(x + 5 * @dir,y - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+    else
+      level_enter_animation_init
+    end
   end
 end

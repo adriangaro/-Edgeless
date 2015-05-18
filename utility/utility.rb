@@ -34,13 +34,23 @@ def sigmoid(t)
   1 / (1 + Math::E ** (-(2 * t - 1) * 5))
 end
 
-def get_object_from_shape(a, level)
+def cubic_bezier(t , a = 1, b = 0.5, c = 2, d = 0)
+  y = 1 - t
+  1 - ((y ** 3 * a) + (3 * y ** 2 * t * b) + (3 * y * t ** 2 * c) + (t ** 3 * d))
+end
+
+
+def get_mob_from_shape(a, level)
   level.mobs.find {|mob| mob.shapes.include? a}
 end
 
+def get_object_from_shape(a, level)
+  level.objects.find {|obj| obj.shapes.include? a}
+end
+
 def attack_hook(attacker_shape, victim_shape, level)
-  attacker = get_object_from_shape attacker_shape, level
-  victim = get_object_from_shape victim_shape, level
+  attacker = get_mob_from_shape attacker_shape, level
+  victim = get_mob_from_shape victim_shape, level
 
   attacker.attack_hook victim
   victim.attacked_hook attacker

@@ -1,8 +1,8 @@
 require 'gosu'
 require 'chipmunk'
 
-require_relative '../utility/utility'
-require_relative 'obj'
+require_relative '../../utility/utility'
+require_relative '../obj'
 
 class LevelBackground < Obj
   attr_accessor :sizex, :sizey, :draw_img
@@ -10,7 +10,7 @@ class LevelBackground < Obj
     @window = window
     @shapes = []
     @bodies = []
-
+    @should_draw = true
     @image = Gosu::Image.new @window, source
 
     @sizex = sizex
@@ -37,7 +37,7 @@ class LevelBackground < Obj
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0.3
     @shapes[0].body.a = 3 * Math::PI / 2.0
-    @shapes[0].collision_type = :background
+    @shapes[0].collision_type = Type::LEVEL_BACKGROUND
     @shapes[0].group = Group::LEVEL_BACKGROUND
     @shapes[0].layers = Layer::LEVEL_BACKGROUND
   end

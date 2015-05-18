@@ -43,7 +43,7 @@ class TriangleMob < Mob
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0.3
     @shapes[0].body.a = 3 * Math::PI / 2.0
-    @shapes[0].collision_type = :mob
+    @shapes[0].collision_type = Type::MOB
     @shapes[0].group = Group::MOB
     @shapes[0].layers = Layer::MOB
 
@@ -51,7 +51,7 @@ class TriangleMob < Mob
     @shapes[1].body.v = vec2 0.0, 0.0
     @shapes[1].e = 0.3
     @shapes[1].body.a = 3 * Math::PI / 2.0
-    @shapes[1].collision_type = :mob
+    @shapes[1].collision_type = Type::MOB
     @shapes[1].group = Group::MOB
     @shapes[1].layers = Layer::NULL_LAYER
 
@@ -59,7 +59,7 @@ class TriangleMob < Mob
     @shapes[2].body.v = vec2 0.0, 0.0
     @shapes[2].e = 0.3
     @shapes[2].body.a = 3 * Math::PI / 2.0
-    @shapes[2].collision_type = :mob
+    @shapes[2].collision_type = Type::MOB
     @shapes[2].group = Group::MOB
     @shapes[2].layers = Layer::NULL_LAYER
   end
@@ -92,21 +92,28 @@ class TriangleMob < Mob
   end
 
   def draw(offsetx, offsety)
-    x = @bodies[0].p.x - offsetx
-    y = @bodies[0].p.y - offsety
-    a = @bodies[0].a.radians_to_gosu
-    @image.draw_rot x, y, 1, a, 0.5, 0.5, @ratio, @ratio
+    if(@should_draw)
+      offsetsx = [offsetx]
+      offsetsy = [offsety]
+      offsetsy << level_enter_animation_do
+      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[0].a.radians_to_gosu
+      @image.draw_rot x, y, 1, a, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
 
-    @eyes.draw_rot x + 1, y - 5, 1, 0, 0.5, 0.5, @ratio, @ratio
+      @eyes.draw_rot x + 1, y - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
 
-    x = @bodies[1].p.x - offsetx
-    y = @bodies[1].p.y - offsety
-    a = @bodies[1].a.radians_to_gosu
-    @wing.draw_rot x, y, 1, a, 1, 1, @ratio, @ratio
+      x = @bodies[1].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[1].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[1].a.radians_to_gosu
+      @wing.draw_rot x, y, 1, a, 1, 1, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
 
-    x = @bodies[2].p.x - offsetx
-    y = @bodies[2].p.y - offsety
-    a = @bodies[2].a.radians_to_gosu
-    @wing.draw_rot x, y, 1, a, 1, 1, -@ratio, @ratio
+      x = @bodies[2].p.x - draw_offsets(offsetsx, offsetsy).x
+      y = @bodies[2].p.y - draw_offsets(offsetsx, offsetsy).y
+      a = @bodies[2].a.radians_to_gosu
+      @wing.draw_rot x, y, 1, a, 1, 1, -@ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+    else
+      level_enter_animation_init
+    end
   end
 end
