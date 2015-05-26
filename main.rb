@@ -7,27 +7,28 @@ require_all 'objects'
 require_all 'utility'
 require_all 'anim'
 
+MAIN_PATH = File.expand_path(File.dirname(__FILE__))
+
 class GameWindow < Gosu::Window
   def initialize
     super Gosu::screen_width, Gosu::screen_height, true
     self.caption = 'Edgeless'
-
     initialize_level
     initialize_camera
     add_collision_handlers
     create_animations
-
+    $level.space.step @dt
   end
 
   def initialize_level
-    @level = First.new self
+    $level = First.new self
     @dt = 1.0 / 60.0
   end
 
   def initialize_camera
-    @camera = CameraEdgeless.new vec2(@level.player.bodies[0].p.x, @level.player.bodies[0].p.y),
+    @camera = CameraEdgeless.new vec2($level.player.bodies[0].p.x, $level.player.bodies[0].p.y),
                                  self,
-                                 @level
+                                 $level
     initialize_camera_behaviour
   end
 
@@ -36,54 +37,79 @@ class GameWindow < Gosu::Window
     @miliseconds = -1
 
     @old_point = @camera.p
-    @new_point = @camera.get_offset(@level.player) + @old_point
+    @new_point = @camera.get_offset($level.player) + @old_point
   end
 
   def add_collision_handlers
-    @level.space.add_collision_handler Type::PLAYER,
+    $level.space.add_collision_handler Type::PLAYER,
                                        Type::PLATFORM,
-                                       PlayerPlatformCollisionHandler.new(@level)
-    @level.space.add_collision_handler Type::PLAYER,
+                                       PlayerPlatformCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::PLAYER,
                                        Type::SPIKE_TOP,
-                                       PlayerSpikeCollisionHandler.new(@level)
-    @level.space.add_collision_handler Type::WEAPON,
+                                       PlayerSpikeCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::WEAPON,
                                        Type::MOB,
-                                       TestCollisionHandler.new(@level)
-    @level.space.add_collision_handler Type::PLAYER,
+                                       SwordMobCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::PLAYER,
                                        Type::JUMP_PAD,
-                                       MobJumpPadCollisionHandler.new(@level)
-    @level.space.add_collision_handler Type::MOB,
+                                       MobJumpPadCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::MOB,
                                        Type::JUMP_PAD,
-                                       MobJumpPadCollisionHandler.new(@level)
-    @level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
+                                       MobJumpPadCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
                                        Type::MOB,
-                                       MobBorderCollisionHandler.new(@level)
-    @level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
+                                       MobBorderCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
                                        Type::PLAYER,
-                                       MobBorderCollisionHandler.new(@level)
+                                       MobBorderCollisionHandler.new($level)
     Type::TYPES.times do |x|
-      @level.space.add_collision_handler Type::CAMERA,
+      $level.space.add_collision_handler Type::CAMERA,
                                          x,
-                                         CameraObjectCollisionHandler.new(@level)
+                                         CameraObjectCollisionHandler.new($level)
     end
   end
 
   def update
-    if(@level.player.miliseconds_level < 0)
+    puts Gosu::fps
+    if($level.player.miliseconds_level < 0)
       SUBSTEPS.times do
         add_keyboard_controls
 
-        @level.mobs.each do |mob|
+        $level.mobs.each do |mob|
+          mob.should_draw = false
           mob.shapes[0].body.reset_forces
-          mob.do_behaviour @level.space
+          mob.do_behaviour $level.space
         end
 
-        draw_off = @camera.get_draw_offset @level
-        @level.camera.follow_camera(draw_off.x, draw_off.y)
-        @level.space.reindex_static
-        @level.space.step @dt
+        $level.objects.each do |obj|
+          obj.should_draw = false
+        end
+
+        @draw_off = @camera.get_draw_offset $level
+        $level.camera.follow_camera(@draw_off.x, @draw_off.y)
+        $level.space.reindex_static
+        $level.space.step @dt
+        $level.mobs.each do |mob|
+          mob.destroy if mob.should_be_destroyed
+        end
+
+        $level.objects.each do |obj|
+          obj.destroy if obj.should_be_destroyed
+        end
+        $level.mobs.compact!
+        $level.objects.compact!
       end
       camera_behaviour
+    end
+    @draw_off = @camera.get_draw_offset $level
+    $level.mobs.each do |mob|
+      mob.get_draw_param @draw_off.x, @draw_off.y
+    end
+    $level.objects.each do |mob|
+      mob.get_draw_param @draw_off.x, @draw_off.y
+    end
+    $level.backgrounds.each do |mob|
+      mob.get_draw_param
     end
   end
 
@@ -92,9 +118,9 @@ class GameWindow < Gosu::Window
 
     @time = 450.0
 
-    if @camera.get_offset(@level.player).x != 0 || @camera.get_offset(@level.player).y != 0
+    if @camera.get_offset($level.player).x != 0 || @camera.get_offset($level.player).y != 0
       @miliseconds = @time - 100
-      @new_point = @camera.get_offset(@level.player) + @old_point
+      @new_point = @camera.get_offset($level.player) + @old_point
       @camera.moving = true
     end
 
@@ -112,36 +138,36 @@ class GameWindow < Gosu::Window
 
   def add_keyboard_controls
     if button_down? Gosu::KbLeft
-      @level.player.turn_left
-      @level.player.accelerate_left
+      $level.player.turn_left
+      $level.player.accelerate_left
     end
     if button_down? Gosu::KbRight
-      @level.player.turn_right
-      @level.player.accelerate_right
+      $level.player.turn_right
+      $level.player.accelerate_right
     end
 
     close if button_down? Gosu::KbEscape
 
-    @level.player.attack if button_down? Gosu::KbZ
+    $level.player.attack if button_down? Gosu::KbZ
 
-    @level.player.jump if button_down? Gosu::KbSpace
+    $level.player.jump if button_down? Gosu::KbSpace
   end
 
   def draw
-    draw_off = @camera.get_draw_offset @level
-    @level.objects.each do |obj|
-      obj.draw draw_off.x, draw_off.y
+    $level.objects.each do |obj|
+      obj.draw
     end
 
-    @level.mobs.each do |mob|
-      mob.draw draw_off.x, draw_off.y
+    $level.mobs.each do |mob|
+      mob.draw
     end
 
-    @level.backgrounds.each do |background|
-      background.draw @level
+    $level.backgrounds.each do |background|
+      background.draw
     end
   end
 end
 
-window = GameWindow.new
-window.show
+
+$window = GameWindow.new
+$window.show

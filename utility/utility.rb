@@ -1,7 +1,6 @@
 require 'gosu'
 require 'chipmunk'
 
-# Numeric
 class Numeric
   def radians_to_vec2
     CP::Vec2.new Math::cos(self), Math::sin(self)
@@ -40,18 +39,37 @@ def cubic_bezier(t , a = 1, b = 0.5, c = 2, d = 0)
 end
 
 
-def get_mob_from_shape(a, level)
-  level.mobs.find {|mob| mob.shapes.include? a}
-end
-
 def get_object_from_shape(a, level)
-  level.objects.find {|obj| obj.shapes.include? a}
+  mob = nil
+  level.mobs.each do |obj1|
+    obj1.shapes.each do |shape|
+      if shape == a
+        mob = obj1
+      end
+    end
+  end
+  obj = nil
+  level.objects.each do |obj1|
+    obj1.shapes.each do |shape|
+      obj = obj1 if shape == a
+    end
+  end
+  back = nil
+  level.backgrounds.each do |obj1|
+    obj1.shapes.each do |shape|
+      back = obj1 if shape == a
+    end
+  end
+  ret = back unless back.nil?
+  ret = mob unless mob.nil?
+  ret = obj unless obj.nil?
+  ret
 end
 
 def attack_hook(attacker_shape, victim_shape, level)
-  attacker = get_mob_from_shape attacker_shape, level
-  victim = get_mob_from_shape victim_shape, level
+  attacker = get_object_from_shape attacker_shape, level
+  victim = get_object_from_shape victim_shape, level
 
-  attacker.attack_hook victim
-  victim.attacked_hook attacker
+  attacker.attack_hook victim unless victim.nil?
+  victim.attacked_hook attacker unless victim.nil?
 end

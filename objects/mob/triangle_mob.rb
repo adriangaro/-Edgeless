@@ -8,9 +8,9 @@ require_relative 'mob'
 
 class TriangleMob < Mob
   def initialize(window)
-    super window, 'resources/images/triangle_mob.png'
-    @eyes = Gosu::Image.new(window, 'resources/images/triangle_mob_eyes.png')
-    @wing = Gosu::Image.new(window, 'resources/images/triangle_mob_wing.png')
+    super window, MAIN_PATH + '/resources/images/triangle_mob.png'
+    @eyes = Gosu::Image.new(window, MAIN_PATH + '/resources/images/triangle_mob_eyes.png')
+    @wing = Gosu::Image.new(window, MAIN_PATH + '/resources/images/triangle_mob_wing.png')
     @window = window
 
     @ratio = 50.0 / @image.width
@@ -24,6 +24,7 @@ class TriangleMob < Mob
     create_bodies
     add_shapes
     set_shapes_prop
+    set_stats(100, 0)
   end
 
   def add_shapes
@@ -53,7 +54,7 @@ class TriangleMob < Mob
     @shapes[1].body.a = 3 * Math::PI / 2.0
     @shapes[1].collision_type = Type::MOB
     @shapes[1].group = Group::MOB
-    @shapes[1].layers = Layer::NULL_LAYER
+    @shapes[1].layers = Layer::MOB
 
     @shapes[2].body.p = vec2 0.0, 0.0
     @shapes[2].body.v = vec2 0.0, 0.0
@@ -61,7 +62,7 @@ class TriangleMob < Mob
     @shapes[2].body.a = 3 * Math::PI / 2.0
     @shapes[2].collision_type = Type::MOB
     @shapes[2].group = Group::MOB
-    @shapes[2].layers = Layer::NULL_LAYER
+    @shapes[2].layers = Layer::MOB
   end
 
   def create_bodies
@@ -91,27 +92,16 @@ class TriangleMob < Mob
     @shapes[0].body.p = @init_pos
   end
 
-  def draw(offsetx, offsety)
+  def draw()
     if(@should_draw)
-      offsetsx = [offsetx]
-      offsetsy = [offsety]
-      offsetsy << level_enter_animation_do
-      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-      a = @bodies[0].a.radians_to_gosu
-      @image.draw_rot x, y, 1, a, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
 
-      @eyes.draw_rot x + 1, y - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @eyes.draw_rot @draw_param[0] + 1, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
 
-      x = @bodies[1].p.x - draw_offsets(offsetsx, offsetsy).x
-      y = @bodies[1].p.y - draw_offsets(offsetsx, offsetsy).y
-      a = @bodies[1].a.radians_to_gosu
-      @wing.draw_rot x, y, 1, a, 1, 1, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @wing.draw_rot @draw_param[0] - 15, @draw_param[1] - 10, 1, @draw_param[2], 1, 1, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
 
-      x = @bodies[2].p.x - draw_offsets(offsetsx, offsetsy).x
-      y = @bodies[2].p.y - draw_offsets(offsetsx, offsetsy).y
-      a = @bodies[2].a.radians_to_gosu
-      @wing.draw_rot x, y, 1, a, 1, 1, -@ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @wing.draw_rot @draw_param[0] + 15, @draw_param[1] - 10, 1, @draw_param[2], 1, 1, -@ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      draw_health
     else
       level_enter_animation_init
     end

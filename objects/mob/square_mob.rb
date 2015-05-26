@@ -8,11 +8,11 @@ require_relative 'mob'
 
 class SquareMob < Mob
   attr_accessor :init_pos, :finish_pos
-  def initialize(window, finish)
-    super window, 'resources/images/square_mob.png'
+
+  def initialize(window)
+    super window, MAIN_PATH + '/resources/images/square_mob.png'
     @window = window
-    @eyes = Gosu::Image.new(window, 'resources/images/square_mob_eyes.png')
-    @finish_pos = finish
+    @eyes = Gosu::Image.new(window, MAIN_PATH + '/resources/images/square_mob_eyes.png')
     @where = "start"
     @last = vec2(0, 0)
     @ratio = 50.0 / @image.width
@@ -24,7 +24,7 @@ class SquareMob < Mob
     create_bodies
     add_shapes
     set_shapes_prop
-    init_hooks
+    set_stats(500,0)
   end
 
   def add_shapes
@@ -50,6 +50,7 @@ class SquareMob < Mob
   def warp(vect)
     @shapes[0].body.p = vect
     @init_pos = vect
+    @finish_pos = vect + vec2(200, 0)
     @dir = 1
   end
 
@@ -64,17 +65,9 @@ class SquareMob < Mob
     @where = "finish" if (bodies[0].p.x > @finish_pos.x && @finish_pos.x > @init_pos.x) || (bodies[0].p.x < @finish_pos.x && @finish_pos.x < @init_pos.x)
     @where = "start" if  (@finish_pos.x > @init_pos.x && @init_pos.x > bodies[0].p.x) || (@finish_pos.x < @init_pos.x && @init_pos.x < bodies[0].p.x)
     if @where == "start"
-      if @finish_pos.x > @init_pos.x
-        set_animation(MOVEMENT, get_animation("squaremob", "right").dup, true)
-      else
-        set_animation(MOVEMENT, get_animation("squaremob", "left").dup, true)
-      end
+      set_animation(MOVEMENT, get_animation("squaremob", "right").dup, true)
     else
-      if @finish_pos.x > @init_pos.x
-        set_animation(MOVEMENT, get_animation("squaremob", "left").dup, true)
-      else
-        set_animation(MOVEMENT, get_animation("squaremob", "right").dup, true)
-      end
+      set_animation(MOVEMENT, get_animation("squaremob", "left").dup, true)
     end
     @dir = (@bodies[0].p - @last).x / (@bodies[0].p - @last).x.abs
     @last = vec2(@bodies[0].p.x, @bodies[0].p.y)
@@ -84,37 +77,15 @@ class SquareMob < Mob
     @shapes[0].body.p = @init_pos
   end
 
-  def init_hooks
-    ATTACKED_HOOKS << lambda do |victim, attacker|
-      if @where == "start"
-        if @finish_pos.x > @init_pos.x
-          victim.bodies[0].apply_impulse vec2(-2000, -2000), vec2(0, 0)
-        else
-          victim.bodies[0].apply_impulse vec2(2000, -2000), vec2(0, 0)
-        end
-      else
-        if @finish_pos.x > @init_pos.x
-          victim.bodies[0].apply_impulse vec2(2000, -2000), vec2(0, 0)
-        else
-          victim.bodies[0].apply_impulse vec2(-2000, -2000), vec2(0, 0)
-        end
-      end
-    end
-  end
-
-  def draw(offsetx, offsety)
+  def draw()
     if(@should_draw)
-      offsetsx = [offsetx]
-      offsetsy = [offsety]
-      offsetsy << level_enter_animation_do
-      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-      a = @bodies[0].a.radians_to_gosu
-      @image.draw_rot(x, y, 1, a, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
-
-      @eyes.draw_rot(x + 5 * @dir,y - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+      @eyes.draw_rot(@draw_param[0] + 5 * @dir,@draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+      draw_health
     else
       level_enter_animation_init
     end
   end
+
+  ATTACKED_HOOKS << BaseHooks::KNOCKBACK
 end

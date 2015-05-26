@@ -8,16 +8,15 @@ require_all 'anim'
 
 
 module Anims
-  KEYWORDS = { "player" => "Anims::PLAYER", "squaremob" => "Anims::SQUARE_MOB", "trianglemob" => "Anims::TRIANGLE_MOB" }
   PLAYER = {}
   SQUARE_MOB = {}
   TRIANGLE_MOB = {}
+  KEYWORDS = { "player" => Anims::PLAYER, "squaremob" => Anims::SQUARE_MOB, "trianglemob" => Anims::TRIANGLE_MOB }
 end
 
 def get_animation(mob, name)
-  eval(Anims::KEYWORDS[mob])[name]
+  Anims::KEYWORDS[mob][name]
 end
-
 
 def create_animations
   Dir.foreach(Dir.pwd + '/anim/anims') do |item|
@@ -73,7 +72,6 @@ def create_animations
     end
     first_word = item.split("_")[0]
     name = item.split("_").drop(1).join.split(".")[0]
-    puts name
-    eval(Anims::KEYWORDS[first_word])[name] = animation
+    Anims::KEYWORDS[first_word][name] = animation
   end
 end

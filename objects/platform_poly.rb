@@ -1,7 +1,5 @@
 require 'gosu'
 require 'chipmunk'
-require 'RMagick'
-require 'rubygems'
 
 require_relative '../utility/utility'
 require_relative 'obj'
@@ -13,11 +11,13 @@ class PlatformPoly < Obj
     @bodies = []
     @image = polygon_image(vertices)
     @vertices = vertices
-    @should_draw = true
+    @should_draw = false
 
     create_bodies
     add_shapes
     set_shapes_prop
+
+    level_enter_animation_init
   end
 
   def add_shapes
@@ -54,15 +54,9 @@ class PlatformPoly < Obj
     Gosu::Image.new @window, box_image
   end
 
-  def draw(offsetx, offsety)
+  def draw()
     if(@should_draw)
-      offsetsx = [offsetx]
-      offsetsy = [offsety]
-      offsetsy << level_enter_animation_do
-      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-      a = @bodies[0].a.radians_to_gosu
-      @image.draw_rot(x, y, 1, a, 0, 0, 1, 1, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0, 1, 1, Gosu::Color.new(@fade_in_level, 255, 255, 255))
     else
       level_enter_animation_init
     end

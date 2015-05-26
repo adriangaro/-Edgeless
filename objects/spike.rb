@@ -6,12 +6,14 @@ require_relative 'obj'
 
 class Spike < Obj
   def initialize(window, sizex, sizey, angle = 0)
-    super window, 'resources/images/spikes.png'
+    super window, MAIN_PATH + '/resources/images/spikes.png'
 
     @sizex = sizex
     @sizey = sizey
     @angle = angle
 
+    @fx = @sizex * 1.0 / @image.width
+    @fy = @sizey * 1.0 / @image.height
     create_bodies
     add_shapes
     set_shapes_prop
@@ -78,17 +80,9 @@ class Spike < Obj
     end
   end
 
-  def draw(offsetx, offsety)
+  def draw()
     if(@should_draw)
-      fx = @sizex * 1.0 / @image.width
-      fy = @sizey * 1.0 / @image.height
-      offsetsx = [offsetx]
-      offsetsy = [offsety]
-      offsetsy << level_enter_animation_do
-      x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-      y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-      a = @bodies[0].a.radians_to_gosu
-      @image.draw_rot(x, y, 1, a, 0, 0, fx, fy, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0, @fx, @fy, Gosu::Color.new(@fade_in_level, 255, 255, 255))
     else
       level_enter_animation_init
     end

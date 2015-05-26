@@ -11,11 +11,14 @@ class Mob < Obj
   ATTACK_HOOKS = []
   ATTACKED_HOOKS = []
 
-  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS
+  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS, :dir
 
   def initialize(window, source)
     super window, source
     @cur_anim = Array.new(3)
+    @dmg = Float::INFINITY
+    @lives = Float::INFINITY
+    @dir = 1
   end
 
   def warp(vect)
@@ -26,6 +29,8 @@ class Mob < Obj
   def set_stats(lives, dmg)
     @lives = lives
     @dmg = dmg
+    @curent_lives = @lives
+    @curent_dmg = @dmg
   end
 
   def respawn
@@ -76,13 +81,33 @@ class Mob < Obj
     @cur_anim[index] = anim
   end
 
-  def draw(offsetx, offsety)
-    offsetsx = [offsetx]
-    offsetsy = [offsety]
-    distance = draw_offsets(offsetsx, offsetsy).y
-    offsetsy << cubic_bezier(distance)
-    x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-    y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-    @image.draw_rot(x, y, 1, @shapes[0].body.a.radians_to_gosu, 0, 0)
+  def draw()
+    @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0)
+    draw_health
+  end
+
+  def draw_health()
+    box_image = Magick::Image.new(50, 10) { self.background_color = '#c1131d'}
+    d = Magick::Draw.new
+    vertices = [vec2(0, 0), vec2(50.0 * @curent_lives / @lives, 0), vec2(50 * @curent_lives / @lives, 10), vec2(0, 10)]
+    draw_vertices = vertices.map { |v| [v.x, v.y] }.flatten
+    d.stroke '#6ab60b'
+    d.fill '#6ab60b'
+    d.polygon(*draw_vertices)
+    d.draw box_image
+    (Gosu::Image.new @window, box_image).draw(@draw_param[0] - 25, @draw_param[1] + 30, 2)
+  end
+
+  module BaseHooks
+    DO_DAMAGE = lambda do |attacker, victim|
+      victim.curent_lives -= attacker.curent_dmg
+      victim.should_be_destroyed = true if victim.curent_lives <= 0
+    end
+
+    KNOCKBACK = lambda do |victim, attacker|
+      victim.bodies[0].apply_impulse vec2(-2000, -2000), vec2(0, 0) if attacker.dir == -1
+
+      victim.bodies[0].apply_impulse vec2(2000, -2000), vec2(0, 0) if attacker.dir == 1
+    end
   end
 end

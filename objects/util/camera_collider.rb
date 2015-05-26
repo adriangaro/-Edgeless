@@ -14,15 +14,16 @@ class CameraColliderObject < Obj
     create_bodies
     add_shapes
     set_shapes_prop
-    @image = Gosu::Image.new @window, 'resources/images/test.png'
+
+    level_enter_animation_init
   end
 
   def add_shapes
     @shapes << CP::Shape::Poly.new(@bodies[0],
-                                   [vec2(50, -50),
-                                    vec2(-@window.height - 50, -50),
-                                    vec2(-@window.height - 50, @window.width + 50),
-                                    vec2(50, @window.width + 50)],
+                                   [vec2(0, 0),
+                                    vec2(-@window.height, 0),
+                                    vec2(-@window.height, @window.width),
+                                    vec2(0, @window.width)],
                                    vec2(0, 0))
   end
 
@@ -33,23 +34,18 @@ class CameraColliderObject < Obj
       shape.e = 0.3
       shape.body.a = 3 * Math::PI / 2.0
       shape.collision_type = Type::CAMERA
+      shape.layers = Layer::FULL_LAYER
       shape.sensor = true
     end
   end
 
-  def follow_camera(_offsetx, _offsety)
-    shapes[0].body.p = vec2(_offsetx, _offsety)
+  def follow_camera(offsetx, offsety)
+    shapes[0].body.p = vec2(offsetx, offsety)
   end
 
   def create_bodies
-    @bodies << CP::Body.new(1, Float::INFINITY)
+    @bodies << CP::Body.new(1, 1)
   end
 
-  def draw(_offsetx, _offsety)
-    fx = @window.width * 1.0 / @image.width
-    fy = @window.height * 1.0 / @image.height
-    x = @bodies[0].p.x - _offsetx
-    y = @bodies[0].p.y - _offsety
-    @image.draw_rot(x, y, 1, 0, 0, 0, fx, fy)
-  end
+  def draw(); end
 end

@@ -32,7 +32,7 @@ class First < Level
 
     @jump_pad = JumpPad.new @window, 100, 45
 
-    @square_mob = SquareMob.new @window, vec2(500, 300)
+    @square_mob = SquareMob.new @window
 
     @triangle_mob = TriangleMob.new @window
 

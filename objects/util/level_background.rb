@@ -11,16 +11,20 @@ class LevelBackground < Obj
     @shapes = []
     @bodies = []
     @should_draw = true
-    @image = Gosu::Image.new @window, source
+    @image = Gosu::Image.new @window, MAIN_PATH + "/" + source
 
     @sizex = sizex
     @sizey = sizey
 
+    @fx = @window.width * 1.0 / @image.width
+    @fy = @window.height * 1.0 / @image.height
     @trans_dist = 0
 
     create_bodies
     add_shapes
     set_shapes_prop
+
+    level_enter_animation_init
   end
 
   def add_shapes
@@ -46,20 +50,18 @@ class LevelBackground < Obj
     @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
 
-  def draw(level)
-    fx = @window.width * 1.0 / @image.width
-    fy = @window.height * 1.0 / @image.height
-
+  def get_draw_param
     f = 0
-
-    min = [level.player.bodies[0].p.x - (@shapes[0].body.p.x - 200),
-           level.player.bodies[0].p.y - (@shapes[0].body.p.y - 200),
-           (@shapes[0].body.p.x + @sizex + 200) - level.player.bodies[0].p.x,
-           (@shapes[0].body.p.y + @sizey + 200) - level.player.bodies[0].p.y].min
+    min = [$level.player.bodies[0].p.x - (@shapes[0].body.p.x - 200),
+           $level.player.bodies[0].p.y - (@shapes[0].body.p.y - 200),
+           (@shapes[0].body.p.x + @sizex + 200) - $level.player.bodies[0].p.x,
+           (@shapes[0].body.p.y + @sizey + 200) - $level.player.bodies[0].p.y].min
     f = 1 if min > 200
     f = min / 200.0 if min < 200
-    c = Gosu::Color.new(255 * f, 255, 255, 255)
+    @draw_param = Gosu::Color.new(255 * f, 255, 255, 255)
+end
 
-    @image.draw(0, 0, 0, fx, fy, c)
+  def draw()
+    @image.draw(0, 0, 0, @fx, @fy, @draw_param)
   end
 end

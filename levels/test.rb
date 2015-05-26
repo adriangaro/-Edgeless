@@ -16,7 +16,7 @@ require_relative '../objects/mob/square_mob'
 
 class Test < Level
   def initialize(window)
-    super window, 1200, 800
+    super window, 3000, 800
     @space.damping = 0.8
     @space.gravity = vec2 0, 20
   end
@@ -31,7 +31,7 @@ class Test < Level
                                    vec2(0, 0)]
     @platform2 = PlatformPoly.new @window,
                                   [vec2(-50.0, 0.0),
-                                   vec2(-50.0, 400.0),
+                                   vec2(-50.0, 600.0),
                                    vec2(0, 400.0),
                                    vec2(0, 0)]
 
@@ -42,9 +42,7 @@ class Test < Level
 
     @jump_pad1 = JumpPad.new @window, 150, 0, Gosu::Color.new(234, 156, 63)
 
-    @square_mob = SquareMob.new @window, vec2(1100, 500)
-
-    @triangle_mob = TriangleMob.new @window
+    @square_mob = SquareMob.new @window
 
     @background1 = LevelBackground.new @window,
                                        "resources/images/background1.png",
@@ -70,7 +68,6 @@ class Test < Level
 
     @mobs << @player
     @mobs << @square_mob
-    @mobs << @triangle_mob
 
     @backgrounds << @background1
     @backgrounds << @background2
@@ -86,7 +83,6 @@ class Test < Level
 
     @player.warp vec2 50, 200
     @square_mob.warp vec2 900, 500
-    @triangle_mob.warp vec2 500, 300
 
     @background1.warp vec2 0, 300
     @background2.warp vec2 700, 300

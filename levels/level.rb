@@ -28,12 +28,11 @@ class Level
     @camera = CameraColliderObject.new @window
     @objects << @camera
     @camera.warp vec2 0, 0
-    
+
     declare_obj
     warp
     add_objects
     add_to_space
-    init_level
   end
 
   def declare_obj
@@ -51,15 +50,6 @@ class Level
     end
     @backgrounds.each do |background|
       background.add_to_space @space
-    end
-  end
-
-  def init_level
-    @objects.each do |x|
-      x.level_enter_animation_init
-    end
-    @mobs.each do |x|
-      x.level_enter_animation_init
     end
   end
 

@@ -18,6 +18,8 @@ class LevelBorder < Obj
     create_bodies
     add_shapes
     set_shapes_prop
+
+    level_enter_animation_init
   end
 
   def add_shapes
@@ -71,6 +73,6 @@ class LevelBorder < Obj
     @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
 
-  def draw(_offsetx, _offsety)
+  def draw()
   end
 end

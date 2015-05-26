@@ -10,9 +10,9 @@ SCREEN_HEIGHT = 480
 class Player < Mob
   attr_accessor :jump, :miliseconds_level
   def initialize(window)
-    super window, 'resources/images/player.png'
+    super window, MAIN_PATH + '/resources/images/player.png'
     @sword = Gosu::Image.new(window,
-                             Magick::Image.read('resources/images/sword.png')[0].flip!)
+                             Magick::Image.read(MAIN_PATH + '/resources/images/sword.png')[0].flip!)
 
     @diameter = 50
 
@@ -30,6 +30,7 @@ class Player < Mob
 
     @attacking = false
     @target_angle = Math::PI / 2.0 + Math::PI / 18
+    set_stats(100, 50)
   end
 
   def add_shapes
@@ -177,21 +178,14 @@ class Player < Mob
     @shapes[0].body.p = @init_pos[0]
   end
 
-  def draw(offsetx, offsety)
-    offsetsx = [offsetx]
-    offsetsy = [offsety]
-    offsetsy << level_enter_animation_do
-    x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-    y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-    @image.draw_rot(x, y, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+  def draw()
+    @image.draw_rot(@draw_param[0], @draw_param[1], 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
 
-    x = @bodies[1].p.x - draw_offsets(offsetsx, offsetsy).x
-    y = @bodies[1].p.y - draw_offsets(offsetsx, offsetsy).y
+    x = @bodies[1].p.x + draw_param[0] - @bodies[0].p.x
+    y = @bodies[1].p.y + draw_param[1] - @bodies[0].p.y
     a = (@shapes[1].body.a + Math::PI).radians_to_gosu
     @sword.draw_rot(x, y, 2, a, 0.5, 0, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255))
   end
 
-  ATTACK_HOOKS << lambda do |attacker, victim|
-    puts "auch"
-  end
+  ATTACK_HOOKS << BaseHooks::DO_DAMAGE
 end

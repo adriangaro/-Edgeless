@@ -34,7 +34,7 @@ module Layer
   # From left to right
   # 1st Bit Border Collision
   # 2nd Bit Platform Collision
-  # 3rd Bit -
+  # 3rd Bit Camera
   # 4th Bit -
   # 5th Bit Spring Collision
   # 6th Bit Spike Collision
@@ -49,16 +49,37 @@ module Layer
   MOB =              '11001110'.to_i 2
   WEAPON =           '00000010'.to_i 2
   JUMP_PAD =         '00001000'.to_i 2
+  FULL_LAYER =       '11111111'.to_i 2
 end
 
 class Obj
-  attr_accessor :shapes, :bodies, :draw_img, :should_draw
+  attr_accessor :shapes, :bodies, :draw_img, :should_draw, :should_be_destroyed, :draw_param
   def initialize(window, source)
     @window = window
-    @should_draw = true
+    @should_draw = false
     @image = Gosu::Image.new window, source
     @shapes = []
     @bodies = []
+    level_enter_animation_init
+  end
+
+  def destroy
+    bodies.each do |body|
+      body.remove_from_space $level.space unless body.mass == Float::INFINITY
+    end
+    shapes.each do |shape|
+      shape.remove_from_space $level.space
+    end
+  end
+
+  def get_draw_param(offsetx, offsety)
+    offsetsx = [offsetx]
+    offsetsy = [offsety]
+    offsetsy << level_enter_animation_do
+    x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
+    y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
+    a = @bodies[0].a.radians_to_gosu
+    @draw_param = [x, y, a]
   end
 
   def warp(vect)
@@ -82,15 +103,16 @@ class Obj
   def create_bodies; end
 
   def level_enter_animation_init
-    @time_level = 60.0
+    @time_level = 50.0
     @miliseconds_level = @time_level  + rand(20)
+    @fade_in_level = 0
   end
 
   def level_enter_animation_do
     @miliseconds_level -= 1.0
     if @miliseconds_level >= 0
       @fade_in_level = (1 - @miliseconds_level / @time_level) * 255
-      200 * cubic_bezier(@miliseconds_level / @time_level)
+      150 * cubic_bezier(@miliseconds_level / @time_level)
     else
       0
     end
@@ -107,5 +129,5 @@ class Obj
     ret
   end
 
-  def draw(offsetx, offsety); end
+  def draw(); end
 end
