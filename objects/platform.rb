@@ -6,8 +6,8 @@ require_relative 'obj'
 
 class Platform < Obj
   def initialize(window, sizex, sizey, angle = 0)
-    super window, MAIN_PATH + '/resources/images/platform.png'
-
+    super window
+    @image = Assets["platform"]
     @sizex = sizex
     @sizey = sizey
     @angle = angle

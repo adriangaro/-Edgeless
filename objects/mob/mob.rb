@@ -11,14 +11,17 @@ class Mob < Obj
   ATTACK_HOOKS = []
   ATTACKED_HOOKS = []
 
-  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS, :dir
+  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS, :dir, :health_bar
 
-  def initialize(window, source)
-    super window, source
+  def initialize(window)
+    super window
     @cur_anim = Array.new(3)
-    @dmg = Float::INFINITY
-    @lives = Float::INFINITY
+    @dmg = -1
+    @lives = -1
+    @curent_lives = -1
+    @curent_dmg = -1
     @dir = 1
+    draw_health
   end
 
   def warp(vect)
@@ -95,12 +98,13 @@ class Mob < Obj
     d.fill '#6ab60b'
     d.polygon(*draw_vertices)
     d.draw box_image
-    (Gosu::Image.new @window, box_image).draw(@draw_param[0] - 25, @draw_param[1] + 30, 2)
+    @health_bar = Gosu::Image.new @window, box_image
   end
 
   module BaseHooks
     DO_DAMAGE = lambda do |attacker, victim|
       victim.curent_lives -= attacker.curent_dmg
+      victim.draw_health
       victim.should_be_destroyed = true if victim.curent_lives <= 0
     end
 

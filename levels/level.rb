@@ -29,10 +29,21 @@ class Level
     @objects << @camera
     @camera.warp vec2 0, 0
 
+    load window
     declare_obj
     warp
     add_objects
     add_to_space
+  end
+
+  def load(window)
+    dir = Dir["resources/images/*.png"]
+    p dir
+    images = {}
+    dir.each do |path|
+      images[path.split("/").last.split(".").first] = path
+    end
+    Assets.load(window, images)
   end
 
   def declare_obj

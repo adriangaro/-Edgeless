@@ -10,9 +10,9 @@ SCREEN_HEIGHT = 480
 class Player < Mob
   attr_accessor :jump, :miliseconds_level
   def initialize(window)
-    super window, MAIN_PATH + '/resources/images/player.png'
-    @sword = Gosu::Image.new(window,
-                             Magick::Image.read(MAIN_PATH + '/resources/images/sword.png')[0].flip!)
+    super window
+    @image = Assets["player"]
+    @sword = Assets["sword"]
 
     @diameter = 50
 
@@ -184,7 +184,7 @@ class Player < Mob
     x = @bodies[1].p.x + draw_param[0] - @bodies[0].p.x
     y = @bodies[1].p.y + draw_param[1] - @bodies[0].p.y
     a = (@shapes[1].body.a + Math::PI).radians_to_gosu
-    @sword.draw_rot(x, y, 2, a, 0.5, 0, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255))
+    @sword.draw_rot(x, y, 2, a + 180, 0.5, 1, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255))
   end
 
   ATTACK_HOOKS << BaseHooks::DO_DAMAGE

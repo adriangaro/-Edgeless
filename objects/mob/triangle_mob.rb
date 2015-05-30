@@ -8,9 +8,10 @@ require_relative 'mob'
 
 class TriangleMob < Mob
   def initialize(window)
-    super window, MAIN_PATH + '/resources/images/triangle_mob.png'
-    @eyes = Gosu::Image.new(window, MAIN_PATH + '/resources/images/triangle_mob_eyes.png')
-    @wing = Gosu::Image.new(window, MAIN_PATH + '/resources/images/triangle_mob_wing.png')
+    super window
+    @image = Assets["triangle_mob"]
+    @eyes = Assets["triangle_mob_eyes"]
+    @wing = Assets["triangle_mob_wing"]
     @window = window
 
     @ratio = 50.0 / @image.width
@@ -94,14 +95,15 @@ class TriangleMob < Mob
 
   def draw()
     if(@should_draw)
-      @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      color = Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, color
 
-      @eyes.draw_rot @draw_param[0] + 1, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @eyes.draw_rot @draw_param[0] + 1, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, color
 
-      @wing.draw_rot @draw_param[0] - 15, @draw_param[1] - 10, 1, @draw_param[2], 1, 1, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @wing.draw_rot @draw_param[0] - 15, @draw_param[1] - 10, 1, @draw_param[2], 1, 1, @ratio, @ratio, color
 
-      @wing.draw_rot @draw_param[0] + 15, @draw_param[1] - 10, 1, @draw_param[2], 1, 1, -@ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255)
-      draw_health
+      @wing.draw_rot @draw_param[0] + 15, @draw_param[1] - 10, 1, @draw_param[2], 1, 1, -@ratio, @ratio, color
+      @health_bar.draw @draw_param[0] - 25, @draw_param[1] + 30, 2
     else
       level_enter_animation_init
     end

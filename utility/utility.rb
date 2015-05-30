@@ -1,6 +1,21 @@
 require 'gosu'
 require 'chipmunk'
 
+class Assets
+  @textures = {}
+  class << self
+    def load(window, images)
+      images.each do |key, value|
+        @textures[key] = Gosu::Image.new window, value
+      end
+    end
+
+    def [](key)
+      @textures[key]
+    end
+  end
+end
+Assets["player"]
 class Numeric
   def radians_to_vec2
     CP::Vec2.new Math::cos(self), Math::sin(self)

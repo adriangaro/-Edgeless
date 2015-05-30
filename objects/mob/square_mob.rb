@@ -8,11 +8,11 @@ require_relative 'mob'
 
 class SquareMob < Mob
   attr_accessor :init_pos, :finish_pos
-
   def initialize(window)
-    super window, MAIN_PATH + '/resources/images/square_mob.png'
+    super window
     @window = window
-    @eyes = Gosu::Image.new(window, MAIN_PATH + '/resources/images/square_mob_eyes.png')
+    @image = Assets["square_mob"]
+    @eyes = Assets["square_mob_eyes"]#Gosu::Image.new(window, MAIN_PATH + '/resources/images/square_mob_eyes.png')
     @where = "start"
     @last = vec2(0, 0)
     @ratio = 50.0 / @image.width
@@ -34,6 +34,9 @@ class SquareMob < Mob
   end
 
   def set_shapes_prop
+    # result = RubyProf.stop
+    # printer = RubyProf::FlatPrinter.new(result)
+    # printer.print(STDOUT)
     @shapes[0].body.p = vec2 0.0, 0.0
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0.3
@@ -79,9 +82,10 @@ class SquareMob < Mob
 
   def draw()
     if(@should_draw)
-      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
-      @eyes.draw_rot(@draw_param[0] + 5 * @dir,@draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
-      draw_health
+      color = Gosu::Color.new(@fade_in_level, 255, 255, 255)
+      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, color)
+      @eyes.draw_rot(@draw_param[0] + 5 * @dir,@draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, color)
+      @health_bar.draw @draw_param[0] - 25, @draw_param[1] + 30, 2
     else
       level_enter_animation_init
     end

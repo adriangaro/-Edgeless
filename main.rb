@@ -70,8 +70,8 @@ class GameWindow < Gosu::Window
   end
 
   def update
-    puts Gosu::fps
-    if($level.player.miliseconds_level < 0)
+    start_console_thread(self, $level) if $level.player.miliseconds_level == 0
+    if $level.player.miliseconds_level < 0
       SUBSTEPS.times do
         add_keyboard_controls
 

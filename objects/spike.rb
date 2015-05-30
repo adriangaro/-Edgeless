@@ -6,7 +6,8 @@ require_relative 'obj'
 
 class Spike < Obj
   def initialize(window, sizex, sizey, angle = 0)
-    super window, MAIN_PATH + '/resources/images/spikes.png'
+    super window
+    @image = Assets["spikes"]
 
     @sizex = sizex
     @sizey = sizey

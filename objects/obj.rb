@@ -54,10 +54,10 @@ end
 
 class Obj
   attr_accessor :shapes, :bodies, :draw_img, :should_draw, :should_be_destroyed, :draw_param
-  def initialize(window, source)
+  def initialize(window)
     @window = window
     @should_draw = false
-    @image = Gosu::Image.new window, source
+    @image = nil
     @shapes = []
     @bodies = []
     level_enter_animation_init
