@@ -1,6 +1,7 @@
 require 'gosu'
 require 'chipmunk'
 require 'RMagick'
+require 'ruby-prof'
 
 require_relative '../../utility/utility'
 require_relative '../obj'
@@ -24,7 +25,7 @@ class SquareMob < Mob
     create_bodies
     add_shapes
     set_shapes_prop
-    set_stats(500,0)
+    set_stats(50,0)
   end
 
   def add_shapes
@@ -81,14 +82,17 @@ class SquareMob < Mob
   end
 
   def draw()
+    # RubyProf.start
     if(@should_draw)
-      color = Gosu::Color.new(@fade_in_level, 255, 255, 255)
-      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, color)
-      @eyes.draw_rot(@draw_param[0] + 5 * @dir,@draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, color)
+      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, @draw_param[3])
+      @eyes.draw_rot(@draw_param[0] + 5 * @dir,@draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3])
       @health_bar.draw @draw_param[0] - 25, @draw_param[1] + 30, 2
     else
       level_enter_animation_init
     end
+    # result = RubyProf.stop
+    # printer = RubyProf::FlatPrinter.new(result)
+    # printer.print(STDOUT)
   end
 
   ATTACKED_HOOKS << BaseHooks::KNOCKBACK

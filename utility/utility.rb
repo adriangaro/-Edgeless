@@ -15,7 +15,7 @@ class Assets
     end
   end
 end
-Assets["player"]
+
 class Numeric
   def radians_to_vec2
     CP::Vec2.new Math::cos(self), Math::sin(self)
@@ -32,11 +32,11 @@ end
 
 class CP::Body
   def apply_force_s(force)
-    apply_force force.dir_vec2, force.origin_vec2
+    apply_force force.dir_vec2 * (1.0 / 60.0 / $delta), force.origin_vec2
   end
 
   def apply_impulse_s(impulse)
-    apply_impulse impulse.dir_vec2, impulse.origin_vec2
+    apply_impulse impulse.dir_vec2 * (1 / 60.0 / $delta), impulse.origin_vec2
   end
 end
 

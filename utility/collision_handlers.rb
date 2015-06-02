@@ -77,7 +77,6 @@ end
 class CameraObjectCollisionHandler
   def initialize(level)
     @level = level
-    @object_id
   end
 
   def begin(_a, b, _arbiter)
@@ -95,7 +94,9 @@ class CameraObjectCollisionHandler
   end
 
   def separate
-    @obj = ObjectSpace._id2ref(@object_id)
+    @obj = ObjectSpace._id2ref(@object_id) unless @object_id.nil?
     @obj.should_draw = false unless @obj.nil?
+    @obj = nil
+    @object_id = nil
   end
 end

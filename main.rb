@@ -8,21 +8,23 @@ require_all 'utility'
 require_all 'anim'
 
 MAIN_PATH = File.expand_path(File.dirname(__FILE__))
+TASKS ||= []
 
 class GameWindow < Gosu::Window
   def initialize
-    super Gosu::screen_width, Gosu::screen_height, true
+    super Gosu::screen_width, Gosu::screen_height, false
     self.caption = 'Edgeless'
     initialize_level
     initialize_camera
     add_collision_handlers
     create_animations
-    $level.space.step @dt
+    $delta = 1 / 60.0
+    @last = Time.now
+    $level.space.step 1 / 60.0
   end
 
   def initialize_level
     $level = First.new self
-    @dt = 1.0 / 60.0
   end
 
   def initialize_camera
@@ -69,8 +71,16 @@ class GameWindow < Gosu::Window
     end
   end
 
+  def delta_time
+    ret =(Time.now - @last)
+    @last = Time.now
+    [ret, 1 / 60.0].max
+  end
+
   def update
-    start_console_thread(self, $level) if $level.player.miliseconds_level == 0
+    $delta = delta_time
+    $level.space.gravity = $level.gravity * 1 / 60.0 / $delta
+    start_console_thread(self, $level) if $level.player.miliseconds_level < 0
     if $level.player.miliseconds_level < 0
       SUBSTEPS.times do
         add_keyboard_controls
@@ -78,7 +88,7 @@ class GameWindow < Gosu::Window
         $level.mobs.each do |mob|
           mob.should_draw = false
           mob.shapes[0].body.reset_forces
-          mob.do_behaviour $level.space
+          # mob.do_behaviour $level.space
         end
 
         $level.objects.each do |obj|
@@ -88,16 +98,9 @@ class GameWindow < Gosu::Window
         @draw_off = @camera.get_draw_offset $level
         $level.camera.follow_camera(@draw_off.x, @draw_off.y)
         $level.space.reindex_static
-        $level.space.step @dt
-        $level.mobs.each do |mob|
-          mob.destroy if mob.should_be_destroyed
-        end
-
-        $level.objects.each do |obj|
-          obj.destroy if obj.should_be_destroyed
-        end
+        $level.space.step $delta
+        TASKS.each &:call
         $level.mobs.compact!
-        $level.objects.compact!
       end
       camera_behaviour
     end
@@ -154,6 +157,8 @@ class GameWindow < Gosu::Window
   end
 
   def draw
+
+      time1 = Time.now
     $level.objects.each do |obj|
       obj.draw
     end
@@ -165,6 +170,7 @@ class GameWindow < Gosu::Window
     $level.backgrounds.each do |background|
       background.draw
     end
+    puts Time.now - time1
   end
 end
 

@@ -64,11 +64,13 @@ class Obj
   end
 
   def destroy
-    bodies.each do |body|
-      body.remove_from_space $level.space unless body.mass == Float::INFINITY
-    end
     shapes.each do |shape|
       shape.remove_from_space $level.space
+      shape = nil
+    end
+    bodies.each do |body|
+      body.remove_from_space $level.space unless body.mass == Float::INFINITY
+      body = nil
     end
   end
 
@@ -79,7 +81,8 @@ class Obj
     x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
     y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
     a = @bodies[0].a.radians_to_gosu
-    @draw_param = [x, y, a]
+    color = Gosu::Color.new(@fade_in_level, 255, 255, 255)
+    @draw_param = [x, y, a, color]
   end
 
   def warp(vect)
@@ -103,13 +106,13 @@ class Obj
   def create_bodies; end
 
   def level_enter_animation_init
-    @time_level = 50.0
-    @miliseconds_level = @time_level  + rand(20)
+    @time_level = 50.0 * 1 / 60.0
+    @miliseconds_level = @time_level  + rand(20) * 1 / 60.0
     @fade_in_level = 0
   end
 
   def level_enter_animation_do
-    @miliseconds_level -= 1.0
+    @miliseconds_level -= $delta
     if @miliseconds_level >= 0
       @fade_in_level = (1 - @miliseconds_level / @time_level) * 255
       150 * cubic_bezier(@miliseconds_level / @time_level)

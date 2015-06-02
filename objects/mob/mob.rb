@@ -105,7 +105,9 @@ class Mob < Obj
     DO_DAMAGE = lambda do |attacker, victim|
       victim.curent_lives -= attacker.curent_dmg
       victim.draw_health
-      victim.should_be_destroyed = true if victim.curent_lives <= 0
+      TASKS << lambda do
+        victim.destroy
+      end if victim.curent_lives <= 0
     end
 
     KNOCKBACK = lambda do |victim, attacker|
