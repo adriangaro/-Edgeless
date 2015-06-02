@@ -16,6 +16,7 @@ class Level
 
   def initialize(window, sizex, sizey)
     @window = window
+    load window
     @space = CP::Space.new
     @objects = []
     @mobs = []
@@ -30,27 +31,36 @@ class Level
     @objects << @camera
     @camera.warp vec2 0, 0
 
-    load window
-    declare_obj
-    warp
-    add_objects
-    add_to_space
+    @player = Player.new @window
+    @mobs << @player
   end
 
   def load(window)
-    dir = Dir["resources/images/*.png"]
-    p dir
+    dir = Dir['resources/images/*.png']
     images = {}
     dir.each do |path|
-      images[path.split("/").last.split(".").first] = path
+      images[path.split('/').last.split('.').first] = path
     end
     Assets.load(window, images)
   end
 
-  def declare_obj
+  def warp_player(x, y)
+    @player.warp vec2 x, y
   end
 
-  def add_objects
+  def add_object(obj, x, y)
+    @objects << obj
+    obj.warp vec2 x, y
+  end
+
+  def add_mob(mob, x, y)
+    @mobs << mob
+    mob.warp vec2 x, y
+  end
+
+  def add_background(background, x, y)
+    @backgrounds << background
+    background.warp vec2 x, y
   end
 
   def add_to_space

@@ -20,74 +20,39 @@ class Test < Level
     @space.damping = 0.8
     @gravity = vec2 0, 20
     @space.gravity = gravity
+
+    warp_player 50, 200
+
+    add_object PlatformPoly.new(@window,
+                                [vec2(-50.0, 0.0),
+                                 vec2(-50.0, 800.0),
+                                 vec2(0, 800.0),
+                                 vec2(0, 0)]),
+               0, 750
+
+    add_object PlatformPoly.new(@window,
+                                [vec2(-50.0, 0.0),
+                                 vec2(-50.0, 600.0),
+                                 vec2(0, 400.0),
+                                 vec2(0, 0)]),
+               800, 550
+
+    add_object PlatformPoly.new(@window,
+                                [vec2(-50.0, 0.0),
+                                 vec2(-50.0, 200.0),
+                                 vec2(0, 0)]),
+               0, 450
+
+    add_object JumpPad.new(@window, 150, 0, Gosu::Color.new(234, 156, 63)), 400, 750
+
+    add_mob SquareMob.new(@window), 900, 500
+
+    add_background LevelBackground.new(@window, 'background1', 700, 500), 0, 300
+
+    add_background LevelBackground.new(@window, 'background2', 500, 500), 700, 300
+
+    add_background LevelBackground.new(@window, 'background3', 1200, 300), 0, 0
+
+    add_to_space
   end
-
-  def declare_obj
-    @player = Player.new @window
-
-    @platform1 = PlatformPoly.new @window,
-                                  [vec2(-50.0, 0.0),
-                                   vec2(-50.0, 800.0),
-                                   vec2(0, 800.0),
-                                   vec2(0, 0)]
-    @platform2 = PlatformPoly.new @window,
-                                  [vec2(-50.0, 0.0),
-                                   vec2(-50.0, 600.0),
-                                   vec2(0, 400.0),
-                                   vec2(0, 0)]
-
-    @platform3 = PlatformPoly.new @window,
-                                  [vec2(-50.0, 0.0),
-                                   vec2(-50.0, 200.0),
-                                   vec2(0, 0)]
-
-    @jump_pad1 = JumpPad.new @window, 150, 0, Gosu::Color.new(234, 156, 63)
-
-    @square_mob = SquareMob.new @window
-
-    @background1 = LevelBackground.new @window,
-                                       "resources/images/background1.png",
-                                       700,
-                                       500
-
-    @background2 = LevelBackground.new @window,
-                                       "resources/images/background2.png",
-                                       500,
-                                       500
-
-    @background3 = LevelBackground.new @window,
-                                       "resources/images/background3.png",
-                                       1200,
-                                       300
-  end
-
-  def add_objects
-    @objects << @platform1
-    @objects << @platform2
-    @objects << @platform3
-    @objects << @jump_pad1
-
-    @mobs << @player
-    @mobs << @square_mob
-
-    @backgrounds << @background1
-    @backgrounds << @background2
-    @backgrounds << @background3
-  end
-
-  def warp
-    @platform1.warp vec2 0, 750
-    @platform2.warp vec2 800, 550
-    @platform3.warp vec2 0, 450
-
-    @jump_pad1.warp vec2 400, 750
-
-    @player.warp vec2 50, 200
-    @square_mob.warp vec2 900, 500
-
-    @background1.warp vec2 0, 300
-    @background2.warp vec2 700, 300
-    @background3.warp vec2 0, 0
-  end
-
 end

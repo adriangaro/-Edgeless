@@ -40,7 +40,7 @@ class CameraColliderObject < Obj
   end
 
   def follow_camera(offsetx, offsety)
-    shapes[0].body.p = vec2(offsetx, offsety)
+    shapes[0].body.p = vec2 offsetx, offsety
   end
 
   def create_bodies

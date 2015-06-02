@@ -72,7 +72,4 @@ class LevelBorder < Obj
   def create_bodies
     @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
-
-  def draw()
-  end
 end

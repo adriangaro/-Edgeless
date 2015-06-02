@@ -32,11 +32,11 @@ end
 
 class CP::Body
   def apply_force_s(force)
-    apply_force force.dir_vec2 * (1.0 / 60.0 / $delta), force.origin_vec2
+    apply_force force.dir_vec2, force.origin_vec2
   end
 
   def apply_impulse_s(impulse)
-    apply_impulse impulse.dir_vec2 * (1 / 60.0 / $delta), impulse.origin_vec2
+    apply_impulse impulse.dir_vec2, impulse.origin_vec2
   end
 end
 
@@ -58,9 +58,7 @@ def get_object_from_shape(a, level)
   mob = nil
   level.mobs.each do |obj1|
     obj1.shapes.each do |shape|
-      if shape == a
-        mob = obj1
-      end
+      mob = obj1 if shape == a
     end
   end
   obj = nil

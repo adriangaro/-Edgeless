@@ -9,9 +9,9 @@ require_relative 'mob'
 class TriangleMob < Mob
   def initialize(window)
     super window
-    @image = Assets["triangle_mob"]
-    @eyes = Assets["triangle_mob_eyes"]
-    @wing = Assets["triangle_mob_wing"]
+    @image = Assets['triangle_mob']
+    @eyes = Assets['triangle_mob_eyes']
+    @wing = Assets['triangle_mob_wing']
     @window = window
 
     @ratio = 50.0 / @image.width
@@ -25,7 +25,7 @@ class TriangleMob < Mob
     create_bodies
     add_shapes
     set_shapes_prop
-    set_stats(100, 0)
+    set_stats 100, 0
   end
 
   def add_shapes
@@ -86,7 +86,7 @@ class TriangleMob < Mob
   end
 
   def do_behaviour(space)
-    set_animation(EXTRA, get_animation("trianglemob", "wingsanim").dup, true)
+    set_animation EXTRA, get_animation('trianglemob', 'wingsanim').dup, true
   end
 
   def respawn
@@ -94,7 +94,7 @@ class TriangleMob < Mob
   end
 
   def draw()
-    if(@should_draw)
+    if @should_draw
       @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, @draw_param[3]
 
       @eyes.draw_rot @draw_param[0] + 1, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, @draw_param[3]

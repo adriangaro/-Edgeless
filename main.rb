@@ -1,5 +1,5 @@
 require 'gosu'
-require 'chipmunk'
+require 'chipmunk/chipmunk'
 require 'require_all'
 
 require_all 'levels'
@@ -24,7 +24,7 @@ class GameWindow < Gosu::Window
   end
 
   def initialize_level
-    $level = First.new self
+    $level = Test.new self
   end
 
   def initialize_camera
@@ -72,15 +72,15 @@ class GameWindow < Gosu::Window
   end
 
   def delta_time
-    ret =(Time.now - @last)
+    ret = Time.now - @last
     @last = Time.now
     [ret, 1 / 60.0].max
   end
 
   def update
     $delta = delta_time
-    $level.space.gravity = $level.gravity * 1 / 60.0 / $delta
-    start_console_thread(self, $level) if $level.player.miliseconds_level < 0
+    $level.space.gravity = $level.gravity
+    start_console_thread self, $level if $level.player.miliseconds_level < 0
     if $level.player.miliseconds_level < 0
       SUBSTEPS.times do
         add_keyboard_controls
@@ -88,7 +88,7 @@ class GameWindow < Gosu::Window
         $level.mobs.each do |mob|
           mob.should_draw = false
           mob.shapes[0].body.reset_forces
-          # mob.do_behaviour $level.space
+          mob.do_behaviour $level.space
         end
 
         $level.objects.each do |obj|
@@ -96,20 +96,21 @@ class GameWindow < Gosu::Window
         end
 
         @draw_off = @camera.get_draw_offset $level
-        $level.camera.follow_camera(@draw_off.x, @draw_off.y)
-        $level.space.reindex_static
-        $level.space.step $delta
+        $level.camera.follow_camera @draw_off.x, @draw_off.y
+        $level.space.step 1 / 60.0
         TASKS.each &:call
         $level.mobs.compact!
       end
       camera_behaviour
     end
+
+    $level.space.reindex_static
     @draw_off = @camera.get_draw_offset $level
     $level.mobs.each do |mob|
-      mob.get_draw_param @draw_off.x, @draw_off.y
+      mob.get_draw_param @draw_off.x, @draw_off.y if mob.should_draw
     end
     $level.objects.each do |mob|
-      mob.get_draw_param @draw_off.x, @draw_off.y
+      mob.get_draw_param @draw_off.x, @draw_off.y if mob.should_draw
     end
     $level.backgrounds.each do |mob|
       mob.get_draw_param
@@ -157,8 +158,6 @@ class GameWindow < Gosu::Window
   end
 
   def draw
-
-      time1 = Time.now
     $level.objects.each do |obj|
       obj.draw
     end
@@ -170,7 +169,6 @@ class GameWindow < Gosu::Window
     $level.backgrounds.each do |background|
       background.draw
     end
-    puts Time.now - time1
   end
 end
 

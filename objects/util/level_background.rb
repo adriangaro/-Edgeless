@@ -6,12 +6,12 @@ require_relative '../obj'
 
 class LevelBackground < Obj
   attr_accessor :sizex, :sizey, :draw_img
-  def initialize(window, source, sizex, sizey)
+  def initialize(window, name, sizex, sizey)
     @window = window
     @shapes = []
     @bodies = []
     @should_draw = true
-    @image = Gosu::Image.new @window, MAIN_PATH + "/" + source
+    @image = Assets[name]
 
     @sizex = sizex
     @sizey = sizey
@@ -58,10 +58,10 @@ class LevelBackground < Obj
            (@shapes[0].body.p.y + @sizey + 200) - $level.player.bodies[0].p.y].min
     f = 1 if min > 200
     f = min / 200.0 if min < 200
-    @draw_param = Gosu::Color.new(255 * f, 255, 255, 255)
+    @draw_param = Gosu::Color.new 255 * f, 255, 255, 255
 end
 
-  def draw()
-    @image.draw(0, 0, 0, @fx, @fy, @draw_param)
+  def draw
+    @image.draw 0, 0, 0, @fx, @fy, @draw_param
   end
 end

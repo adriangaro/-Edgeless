@@ -34,7 +34,7 @@ class Animation
   def add_missing_steps
     @refference_steps.each do |ref_step|
       last = nil
-      index = @refference_steps.index(ref_step)
+      index = @refference_steps.index ref_step
       distance = -1
       @steps[index] = []
       ref_step.each do |step|
@@ -75,25 +75,13 @@ class Animation
   end
 
   def do_animation(shapes)
-    if !@finished && @started
-      shapes.each do |shape|
-        index = shapes.index(shape)
-        @steps[index][@current_step].do_step(shape)
-      end
-      @current_step += 1 if @current_step < @max_steps
-      @finished = true if @current_step >= @max_steps
-      @current_step = 0 if @current_step >= @max_steps
+    return if @finished || !@started
+    shapes.each do |shape|
+      index = shapes.index(shape)
+      @steps[index][@current_step].do_step(shape)
     end
-  end
-
-  def new_instance
-    ret = Animation.new
-    ret.steps = @steps
-    ret.refference_steps = @refference_steps
-    ret.finished = @finished
-    ret.started = @started
-    ret.current_step = @current_step
-    ret.max_steps = @max_steps
-    ret
+    @current_step += 1 if @current_step < @max_steps
+    @finished = true if @current_step >= @max_steps
+    @current_step = 0 if @current_step >= @max_steps
   end
 end

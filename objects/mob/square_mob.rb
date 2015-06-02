@@ -12,10 +12,10 @@ class SquareMob < Mob
   def initialize(window)
     super window
     @window = window
-    @image = Assets["square_mob"]
-    @eyes = Assets["square_mob_eyes"]#Gosu::Image.new(window, MAIN_PATH + '/resources/images/square_mob_eyes.png')
-    @where = "start"
-    @last = vec2(0, 0)
+    @image = Assets['square_mob']
+    @eyes = Assets['square_mob_eyes']
+    @where = 'start'
+    @last = vec2 0, 0
     @ratio = 50.0 / @image.width
     @vertices = [vec2(-50.0, 0.0),
                  vec2(-50.0, 50.0),
@@ -25,7 +25,7 @@ class SquareMob < Mob
     create_bodies
     add_shapes
     set_shapes_prop
-    set_stats(50,0)
+    set_stats 250, 0
   end
 
   def add_shapes
@@ -35,9 +35,6 @@ class SquareMob < Mob
   end
 
   def set_shapes_prop
-    # result = RubyProf.stop
-    # printer = RubyProf::FlatPrinter.new(result)
-    # printer.print(STDOUT)
     @shapes[0].body.p = vec2 0.0, 0.0
     @shapes[0].body.v = vec2 0.0, 0.0
     @shapes[0].e = 0.3
@@ -66,33 +63,27 @@ class SquareMob < Mob
   end
 
   def do_behaviour(space)
-    @where = "finish" if (bodies[0].p.x > @finish_pos.x && @finish_pos.x > @init_pos.x) || (bodies[0].p.x < @finish_pos.x && @finish_pos.x < @init_pos.x)
-    @where = "start" if  (@finish_pos.x > @init_pos.x && @init_pos.x > bodies[0].p.x) || (@finish_pos.x < @init_pos.x && @init_pos.x < bodies[0].p.x)
-    if @where == "start"
-      set_animation(MOVEMENT, get_animation("squaremob", "right").dup, true)
+    if $level.player.bodies[0].p.x - @bodies[0].p.x > 0
+      set_animation MOVEMENT, get_animation('squaremob', 'right').dup, true
     else
-      set_animation(MOVEMENT, get_animation("squaremob", "left").dup, true)
+      set_animation MOVEMENT, get_animation('squaremob', 'left').dup, true
     end
     @dir = (@bodies[0].p - @last).x / (@bodies[0].p - @last).x.abs
-    @last = vec2(@bodies[0].p.x, @bodies[0].p.y)
+    @last = vec2 @bodies[0].p.x, @bodies[0].p.y
   end
 
   def respawn
     @shapes[0].body.p = @init_pos
   end
 
-  def draw()
-    # RubyProf.start
-    if(@should_draw)
-      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, @draw_param[3])
-      @eyes.draw_rot(@draw_param[0] + 5 * @dir,@draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3])
+  def draw
+    if @should_draw
+      @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, @draw_param[3]
+      @eyes.draw_rot @draw_param[0] + 5 * @dir, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3]
       @health_bar.draw @draw_param[0] - 25, @draw_param[1] + 30, 2
     else
       level_enter_animation_init
     end
-    # result = RubyProf.stop
-    # printer = RubyProf::FlatPrinter.new(result)
-    # printer.print(STDOUT)
   end
 
   ATTACKED_HOOKS << BaseHooks::KNOCKBACK

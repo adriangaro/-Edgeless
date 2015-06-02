@@ -58,38 +58,38 @@ class Mob < Obj
     @cur_anim.each do |anim|
       next if anim.nil?
       index = @cur_anim.index anim
-      do_animation_on_index(index)
+      do_animation_on_index index
     end
   end
 
   def do_animation_on_index(index)
     return if @cur_anim[index].nil?
-    unless @cur_anim[index].started
-      @cur_anim[index].started = true
-    end
+
+    @cur_anim[index].started = true unless @cur_anim[index].started
+
     if @cur_anim[index].finished
       @cur_anim[index] = nil
     else
-      @cur_anim[index].do_animation(@shapes)
+      @cur_anim[index].do_animation @shapes
     end
   end
 
   def set_animation(index, anim, instant = false)
-    do_animation_on_index(index) if instant
+    do_animation_on_index index if instant
     @cur_anim[index] = anim if @cur_anim[index].nil?
   end
 
   def over_write_animation(index, anim, instant = false)
-    do_animation_on_index(index) if instant
+    do_animation_on_index index if instant
     @cur_anim[index] = anim
   end
 
-  def draw()
-    @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0)
+  def draw
+    @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0
     draw_health
   end
 
-  def draw_health()
+  def draw_health
     box_image = Magick::Image.new(50, 10) { self.background_color = '#c1131d'}
     d = Magick::Draw.new
     vertices = [vec2(0, 0), vec2(50.0 * @curent_lives / @lives, 0), vec2(50 * @curent_lives / @lives, 10), vec2(0, 10)]

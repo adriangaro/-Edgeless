@@ -81,7 +81,7 @@ class Obj
     x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
     y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
     a = @bodies[0].a.radians_to_gosu
-    color = Gosu::Color.new(@fade_in_level, 255, 255, 255)
+    color = Gosu::Color.new @fade_in_level, 255, 255, 255
     @draw_param = [x, y, a, color]
   end
 

@@ -21,55 +21,26 @@ class First < Level
     @space.damping = 0.8
     @gravity = vec2 0, 20
     @space.gravity = gravity
-  end
+    warp_player 120, 140
+    add_object PlatformPoly.new(@window,
+                                [vec2(-50.0, 0.0),
+                                 vec2(-50.0, 2000.0),
+                                 vec2(0, 2000.0),
+                                 vec2(0, 0)]),
+               0, 400
 
-  def declare_obj
-    @player = Player.new @window
-    @poly = PlatformPoly.new @window,
-                             [vec2(-50.0, 0.0),
-                              vec2(-50.0, 2000.0),
-                              vec2(0, 2000.0),
-                              vec2(0, 0)]
+    add_object JumpPad.new(@window, 100, 45), 1800, 350
 
-    @jump_pad = JumpPad.new @window, 100, 45
+    add_mob SquareMob.new(@window), 300, 300
 
-    @square_mob = SquareMob.new @window
+    add_mob TriangleMob.new(@window), 400, 300
 
-    @triangle_mob = TriangleMob.new @window
+    add_background LevelBackground.new(@window, 'background1', 640, 480), 0, 0
 
-    @background1 = LevelBackground.new @window,
-                                       "resources/images/background1.png",
-                                       640,
-                                       480
-    @background2 = LevelBackground.new @window,
-                                       "resources/images/background2.png",
-                                       560,
-                                       480
-    @background3 = LevelBackground.new @window,
-                                       "resources/images/background3.png",
-                                       800,
-                                       480
-  end
+    add_background LevelBackground.new(@window, 'background2', 560, 480), 640, 0
 
-  def add_objects
-    @mobs << @player
-    @objects << @poly
-    @objects << @jump_pad
-    @mobs << @square_mob
-    @mobs << @triangle_mob
-    @backgrounds << @background1
-    @backgrounds << @background2
-    @backgrounds << @background3
-  end
+    add_background LevelBackground.new(@window, 'background3', 800, 480), 1200, 0
 
-  def warp
-    @player.warp vec2 120, 140
-    @poly.warp vec2 0, 400
-    @jump_pad.warp vec2 1800, 350
-    @square_mob.warp vec2 300, 300
-    @triangle_mob.warp vec2 400, 300
-    @background1.warp vec2 0, 0
-    @background2.warp vec2 640, 0
-    @background3.warp vec2 1200, 0
+    add_to_space
   end
 end

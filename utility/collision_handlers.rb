@@ -57,7 +57,7 @@ class MobJumpPadCollisionHandler
   end
 
   def get_direction_vector(obj)
-    vec2(Math.cos(obj.body.a), Math.sin(obj.body.a))
+    vec2 Math.cos(obj.body.a), Math.sin(obj.body.a)
   end
 end
 
@@ -68,7 +68,7 @@ class MobBorderCollisionHandler
   end
 
   def begin(_a, b, _arbiter)
-    mob = get_object_from_shape(b, @level)
+    mob = get_object_from_shape b, @level
     mob.respawn
     true
   end
@@ -80,21 +80,21 @@ class CameraObjectCollisionHandler
   end
 
   def begin(_a, b, _arbiter)
-    @obj = get_object_from_shape(b, @level)
+    @obj = get_object_from_shape b, @level
     @object_id = @obj.object_id
     @obj.should_draw = true
     true
   end
 
   def pre_solve(_a, b)
-    @obj = get_object_from_shape(b, @level)
+    @obj = get_object_from_shape b, @level
     @object_id = @obj.object_id
     @obj.should_draw = true unless @obj.nil?
     true
   end
 
   def separate
-    @obj = ObjectSpace._id2ref(@object_id) unless @object_id.nil?
+    @obj = ObjectSpace._id2ref @object_id unless @object_id.nil?
     @obj.should_draw = false unless @obj.nil?
     @obj = nil
     @object_id = nil

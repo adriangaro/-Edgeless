@@ -54,9 +54,9 @@ class PlatformPoly < Obj
     Gosu::Image.new @window, box_image
   end
 
-  def draw()
-    if(@should_draw)
-      @image.draw_rot(@draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0, 1, 1, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+  def draw
+    if @should_draw
+      @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0, 1, 1, @draw_param[3]
     else
       level_enter_animation_init
     end

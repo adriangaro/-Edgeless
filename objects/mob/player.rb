@@ -11,8 +11,8 @@ class Player < Mob
   attr_accessor :jump, :miliseconds_level
   def initialize(window)
     super window
-    @image = Assets["player"]
-    @sword = Assets["sword"]
+    @image = Assets['player']
+    @sword = Assets['sword']
 
     @diameter = 50
 
@@ -30,7 +30,7 @@ class Player < Mob
 
     @attacking = false
     @target_angle = Math::PI / 2.0 + Math::PI / 18
-    set_stats(100, 50)
+    set_stats 100, 50
   end
 
   def add_shapes
@@ -93,25 +93,25 @@ class Player < Mob
 
   def accelerate_left
     stop_idle_anim
-    set_animation(MOVEMENT, get_animation("player", "left").dup, true)
+    set_animation MOVEMENT, get_animation('player', 'left').dup, true
 
   end
 
   def accelerate_right
     stop_idle_anim
-    set_animation(MOVEMENT, get_animation("player", "right").dup, true)
+    set_animation MOVEMENT, get_animation('player', 'right').dup, true
   end
 
   def attack
     stop_idle_anim
-    set_animation(BEHAVIOUR, get_animation("player", "attackright").dup) if @dir == 1 && !@attacking
-    set_animation(BEHAVIOUR, get_animation("player", "attackleft").dup) if @dir == -1 && !@attacking
+    set_animation BEHAVIOUR, get_animation('player', 'attackright').dup if @dir == 1 && !@attacking
+    set_animation BEHAVIOUR, get_animation('player', 'attackleft').dup if @dir == -1 && !@attacking
     @attacking = true
   end
 
   def jump
     stop_idle_anim
-    over_write_animation(MOVEMENT, get_animation("player", "jump").dup) if @jump
+    over_write_animation MOVEMENT, get_animation('player', 'jump').dup if @jump
   end
 
   def do_behaviour(space)
@@ -119,20 +119,20 @@ class Player < Mob
       rnd = Random.new
       x = rnd.rand(3000)
       if x == 1
-        set_animation(EXTRA, get_animation("player", "leftidle1").dup) if @dir == -1
-        set_animation(EXTRA, get_animation("player", "rightidle1").dup) if @dir == 1
+        set_animation EXTRA, get_animation('player', 'leftidle1').dup if @dir == -1
+        set_animation EXTRA, get_animation('player', 'rightidle1').dup if @dir == 1
       end
     end
 
-    set_animation(BEHAVIOUR, get_animation("player", "changedirectionright").dup) if @dir == 1 &&
-                                                                           @bodies[1].a < 3 * Math::PI / 2 &&
-                                                                           !@weapon_hidden
-    set_animation(BEHAVIOUR, get_animation("player", "changedirectionleft").dup) if @dir == -1 &&
-                                                                          @bodies[1].a > 3 * Math::PI / 2 &&
-                                                                          !@weapon_hidden
+    set_animation BEHAVIOUR, get_animation('player', 'changedirectionright').dup if @dir == 1 &&
+                                                                                    @bodies[1].a < 3 * Math::PI / 2 &&
+                                                                                    !@weapon_hidden
+    set_animation BEHAVIOUR, get_animation('player', 'changedirectionleft').dup if @dir == -1 &&
+                                                                                @bodies[1].a > 3 * Math::PI / 2 &&
+                                                                                !@weapon_hidden
 
     @bodies[1].p += @bodies[0].p - @last
-    @last = vec2(@bodies[0].p.x,@bodies[0].p.y)
+    @last = vec2 @bodies[0].p.x, @bodies[0].p.y
     @attacking = false if @cur_anim[1].nil?
 
     if @weapon_hidden
@@ -155,11 +155,10 @@ class Player < Mob
   end
 
   def stop_idle_anim
-    unless @cur_anim[2].nil?
-      @cur_anim[2] = nil
-      @bodies[1].p = @bodies[0].p + vec2(@dir * (@diameter / 2 + 5), 15)
-      @bodies[1].a = 3 * Math::PI / 2 + @dir * Math::PI / 18
-    end
+    return if @cur_anim[2].nil?
+    @cur_anim[2] = nil
+    @bodies[1].p = @bodies[0].p + vec2(@dir * (@diameter / 2 + 5), 15)
+    @bodies[1].a = 3 * Math::PI / 2 + @dir * Math::PI / 18
   end
 
   def hide_sword
@@ -178,13 +177,13 @@ class Player < Mob
     @shapes[0].body.p = @init_pos[0]
   end
 
-  def draw()
-    @image.draw_rot(@draw_param[0], @draw_param[1], 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, Gosu::Color.new(@fade_in_level, 255, 255, 255))
+  def draw
+    @image.draw_rot @draw_param[0], @draw_param[1], 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3]
 
     x = @bodies[1].p.x + draw_param[0] - @bodies[0].p.x
     y = @bodies[1].p.y + draw_param[1] - @bodies[0].p.y
     a = (@shapes[1].body.a + Math::PI).radians_to_gosu
-    @sword.draw_rot(x, y, 2, a + 180, 0.5, 1, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255))
+    @sword.draw_rot x, y, 2, a + 180, 0.5, 1, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255)
   end
 
   ATTACK_HOOKS << BaseHooks::DO_DAMAGE
