@@ -20,7 +20,7 @@ class First < Level
     super window, 2000, 480
     @space.damping = 0.8
     @gravity = vec2 0, 20
-    @space.gravity = gravity
+    @space.gravity = @gravity
     warp_player 120, 140
     add_object PlatformPoly.new(@window,
                                 [vec2(-50.0, 0.0),
@@ -41,6 +41,6 @@ class First < Level
 
     add_background LevelBackground.new(@window, 'background3', 800, 480), 1200, 0
 
-    add_to_space
+    init_level
   end
 end

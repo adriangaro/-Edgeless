@@ -31,6 +31,8 @@ class Player < Mob
     @attacking = false
     @target_angle = Math::PI / 2.0 + Math::PI / 18
     set_stats 100, 50
+
+    @fsm.push_state -> { idle }
   end
 
   def add_shapes
@@ -115,42 +117,16 @@ class Player < Mob
   end
 
   def do_behaviour(space)
-    if @cur_anim[0].nil? && @cur_anim[1].nil?
-      rnd = Random.new
-      x = rnd.rand(3000)
-      if x == 1
-        set_animation EXTRA, get_animation('player', 'leftidle1').dup if @dir == -1
-        set_animation EXTRA, get_animation('player', 'rightidle1').dup if @dir == 1
-      end
-    end
-
-    set_animation BEHAVIOUR, get_animation('player', 'changedirectionright').dup if @dir == 1 &&
-                                                                                    @bodies[1].a < 3 * Math::PI / 2 &&
-                                                                                    !@weapon_hidden
-    set_animation BEHAVIOUR, get_animation('player', 'changedirectionleft').dup if @dir == -1 &&
-                                                                                @bodies[1].a > 3 * Math::PI / 2 &&
-                                                                                !@weapon_hidden
-
     @bodies[1].p += @bodies[0].p - @last
     @last = vec2 @bodies[0].p.x, @bodies[0].p.y
     @attacking = false if @cur_anim[1].nil?
-
     if @weapon_hidden
       @bodies[1].p = @bodies[0].p + vec2(@dir * (@diameter / 2 + 5), 15)
       @bodies[1].a = 3 * Math::PI / 2 + @dir * Math::PI / 18
     end
 
-    if @cur_anim[1].nil? && @cur_anim[2].nil?
-      @hide_time += 1
-    else
-      @hide_time = 0
-    end
+    @fsm.update
 
-    if @hide_time > 400
-      hide_sword
-    else
-      show_sword
-    end
     do_animations
   end
 
@@ -159,18 +135,6 @@ class Player < Mob
     @cur_anim[2] = nil
     @bodies[1].p = @bodies[0].p + vec2(@dir * (@diameter / 2 + 5), 15)
     @bodies[1].a = 3 * Math::PI / 2 + @dir * Math::PI / 18
-  end
-
-  def hide_sword
-    @weapon_hidden = true
-    @shapes[1].layers = Layer::NULL_LAYER
-    @alpha -= 1 if @alpha > 0
-  end
-
-  def show_sword
-    @weapon_hidden = false
-    @shapes[1].layers = Layer::WEAPON
-    @alpha += 5 if @alpha < 255
   end
 
   def respawn
@@ -187,4 +151,77 @@ class Player < Mob
   end
 
   ATTACK_HOOKS << BaseHooks::DO_DAMAGE
+
+  ##############################################
+  #AI                                          #
+  ##############################################
+
+  def idle
+    if @cur_anim[0].nil? && @cur_anim[1].nil?
+      rnd = Random.new
+      x = rnd.rand(3000)
+      if x == 1
+        set_animation EXTRA, get_animation('player', 'leftidle1').dup if @dir == -1
+        set_animation EXTRA, get_animation('player', 'rightidle1').dup if @dir == 1
+      end
+    end
+
+    if (@dir == 1 && @bodies[1].a < 3 * Math::PI / 2 && !@weapon_hidden) ||
+       (@dir == -1 && @bodies[1].a > 3 * Math::PI / 2 && !@weapon_hidden)
+      @fsm.push_state -> { change_dir }
+      return
+    end
+
+    if @cur_anim[1].nil? && @cur_anim[2].nil?
+      @fsm.push_state -> { hide_weapon }
+      return
+    else
+      @fsm.push_state -> { show_weapon }
+      return
+    end
+  end
+
+  def change_dir
+    set_animation BEHAVIOUR, get_animation('player', 'changedirectionright').dup if @dir == 1 &&
+                                                                                    @bodies[1].a < 3 * Math::PI / 2 &&
+                                                                                    !@weapon_hidden
+    set_animation BEHAVIOUR, get_animation('player', 'changedirectionleft').dup if @dir == -1 &&
+                                                                                    @bodies[1].a > 3 * Math::PI / 2 &&
+                                                                                    !@weapon_hidden
+    @fsm.pop_state
+  end
+
+  def hide_weapon
+    @hide_time += 1
+
+    if @hide_time > 70
+      @weapon_hidden = true
+      @shapes[1].layers = Layer::NULL_LAYER
+      @alpha -= 6 if @alpha > 0
+    end
+
+    @fsm.pop_state
+
+    if (@dir == 1 && @bodies[1].a < 3 * Math::PI / 2 && !@weapon_hidden) ||
+       (@dir == -1 && @bodies[1].a > 3 * Math::PI / 2 && !@weapon_hidden)
+      @fsm.push_state -> { change_dir }
+      return
+    end
+  end
+
+  def show_weapon
+    @hide_time = 0
+
+    @weapon_hidden = false
+    @shapes[1].layers = Layer::WEAPON
+    @alpha += 30 if @alpha < 255
+
+    @fsm.pop_state
+
+    if (@dir == 1 && @bodies[1].a < 3 * Math::PI / 2 && !@weapon_hidden) ||
+       (@dir == -1 && @bodies[1].a > 3 * Math::PI / 2 && !@weapon_hidden)
+      @fsm.push_state -> { change_dir }
+      return
+    end
+  end
 end

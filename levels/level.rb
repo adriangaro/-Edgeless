@@ -63,7 +63,7 @@ class Level
     background.warp vec2 x, y
   end
 
-  def add_to_space
+  def init_level
     @objects.each do |obj|
       obj.add_to_space @space
     end

@@ -74,6 +74,26 @@ class MobBorderCollisionHandler
   end
 end
 
+class PlayerSensorCollisionHandler
+  def initialize(level)
+    @level = level
+  end
+
+  def begin(a, _b, _arbiter)
+    @obj = get_object_from_shape a, @level
+    @object_id = @obj.object_id
+    @obj.agro = true
+    true
+  end
+
+  def separate
+    @obj = ObjectSpace._id2ref @object_id unless @object_id.nil?
+    @obj.agro = false unless @obj.nil?
+    @obj = nil
+    @object_id = nil
+  end
+end
+
 class CameraObjectCollisionHandler
   def initialize(level)
     @level = level

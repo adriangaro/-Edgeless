@@ -19,7 +19,7 @@ COMMANDS = {'spawn' => [lambda do |args, window, level|
                           else
                             amount = 1
                             amount = [Integer(args[4]), amount].max unless args[4].nil?
-                            fail if amount > 100
+                            fail if amount > 600
                             amount.times do
                               mob = MOBS[args[1]].new window
                               mob.warp vec2(Float(args[2]), Float(args[3]))
@@ -28,7 +28,7 @@ COMMANDS = {'spawn' => [lambda do |args, window, level|
                             end
                           end
                         end,
-                        "Spawns mobs into level.\n\tUsage: spawn <mob_name : string> <x : float> <y : float> <amount <= 100 : int>."],
+                        "Spawns mobs into level.\n\tUsage: spawn <mob_name : string> <x : float> <y : float> <amount <= 600 : int>."],
             'help' => [lambda do |args, window, level|
                          puts 'List of commands:'
                          COMMANDS.each do |key, value|

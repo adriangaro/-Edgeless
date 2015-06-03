@@ -14,6 +14,8 @@ require_relative '../objects/mob/player'
 require_relative '../objects/mob/square_mob'
 require_relative 'anim_step'
 
+NULL_STEP = AnimationStep.new
+
 class Animation
   attr_accessor :finished, :started, :steps, :refference_steps, :current_step, :max_steps
   def initialize
@@ -78,9 +80,13 @@ class Animation
     return if @finished || !@started
     shapes.each do |shape|
       index = shapes.index(shape)
-      @steps[index][@current_step].do_step(shape)
+      if !@steps[index].nil?
+        @steps[index][@current_step].do_step shape
+      else
+        NULL_STEP.do_step shape
+      end
     end
-    @current_step += 1 if @current_step < @max_steps
+    @current_step += 1 if @current_step <= @max_steps
     @finished = true if @current_step >= @max_steps
     @current_step = 0 if @current_step >= @max_steps
   end

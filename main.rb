@@ -21,6 +21,7 @@ class GameWindow < Gosu::Window
     $delta = 1 / 60.0
     @last = Time.now
     $level.space.step 1 / 60.0
+    @start = true
   end
 
   def initialize_level
@@ -64,6 +65,9 @@ class GameWindow < Gosu::Window
     $level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
                                        Type::PLAYER,
                                        MobBorderCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::SENSOR,
+                                       Type::PLAYER,
+                                       PlayerSensorCollisionHandler.new($level)
     Type::TYPES.times do |x|
       $level.space.add_collision_handler Type::CAMERA,
                                          x,
@@ -78,43 +82,48 @@ class GameWindow < Gosu::Window
   end
 
   def update
+    # RubyProf.start
     $delta = delta_time
-    $level.space.gravity = $level.gravity
-    start_console_thread self, $level if $level.player.miliseconds_level < 0
+    $level.space.gravity = $level.gravity * 1 / 60 / $delta
+    @draw_off = @camera.get_draw_offset $level
+    if @start
+      @start = false
+      start_console_thread self, $level
+    end
     if $level.player.miliseconds_level < 0
-      SUBSTEPS.times do
-        add_keyboard_controls
+      add_keyboard_controls
 
-        $level.mobs.each do |mob|
-          mob.should_draw = false
-          mob.shapes[0].body.reset_forces
-          mob.do_behaviour $level.space
-        end
-
-        $level.objects.each do |obj|
-          obj.should_draw = false
-        end
-
-        @draw_off = @camera.get_draw_offset $level
-        $level.camera.follow_camera @draw_off.x, @draw_off.y
-        $level.space.step 1 / 60.0
-        TASKS.each &:call
-        $level.mobs.compact!
+      $level.mobs.each do |mob|
+        mob.should_draw = false
+        mob.shapes[0].body.reset_forces
+        mob.do_behaviour $level.space
       end
+
+      $level.objects.each do |obj|
+        obj.should_draw = false
+      end
+      $level.camera.follow_camera @draw_off.x, @draw_off.y
+      $level.space.step $delta * 6
+      $level.mobs.compact!
       camera_behaviour
     end
 
+    TASKS.each &:call
     $level.space.reindex_static
-    @draw_off = @camera.get_draw_offset $level
     $level.mobs.each do |mob|
       mob.get_draw_param @draw_off.x, @draw_off.y if mob.should_draw
     end
     $level.objects.each do |mob|
-      mob.get_draw_param @draw_off.x, @draw_off.y if mob.should_draw
+      mob.get_draw_param @draw_off.x, @draw_off.y
     end
     $level.backgrounds.each do |mob|
       mob.get_draw_param
     end
+    # result = RubyProf.stop
+    #
+    # # Print a flat profile to text
+    # printer = RubyProf::FlatPrinter.new(result)
+    # printer.print(STDOUT)
   end
 
   def camera_behaviour
@@ -130,7 +139,7 @@ class GameWindow < Gosu::Window
 
     if @miliseconds > 0
       @offset = @old_point * (1 - sigmoid((@time - @miliseconds) / @time)) + @new_point * sigmoid((@time - @miliseconds) / @time)
-      @miliseconds -= 17
+      @miliseconds -= $delta * 1000
     else
       @offset = @new_point if @camera.moving
       @camera.moving = false
@@ -175,3 +184,5 @@ end
 
 $window = GameWindow.new
 $window.show
+
+#PCRFC4B83EAB50601

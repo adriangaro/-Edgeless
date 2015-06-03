@@ -3,6 +3,7 @@ require 'chipmunk'
 
 require_relative '../../utility/utility'
 require_relative '../obj'
+require_relative '../../ai/fsm'
 MOVEMENT = 0
 BEHAVIOUR = 1
 EXTRA = 2
@@ -10,18 +11,19 @@ EXTRA = 2
 class Mob < Obj
   ATTACK_HOOKS = []
   ATTACKED_HOOKS = []
-
-  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS, :dir, :health_bar
+  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS, :dir, :health_bar, :fsm, :agro
 
   def initialize(window)
     super window
-    @cur_anim = Array.new(3)
+    @cur_anim = []
     @dmg = -1
     @lives = -1
     @curent_lives = -1
     @curent_dmg = -1
     @dir = 1
     draw_health
+    @fsm = StackFSM.new
+    @agro = false
   end
 
   def warp(vect)
@@ -100,6 +102,8 @@ class Mob < Obj
     d.draw box_image
     @health_bar = Gosu::Image.new @window, box_image
   end
+
+  def load_ail; end
 
   module BaseHooks
     DO_DAMAGE = lambda do |attacker, victim|

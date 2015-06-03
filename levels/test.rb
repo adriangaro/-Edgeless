@@ -19,7 +19,7 @@ class Test < Level
     super window, 3000, 800
     @space.damping = 0.8
     @gravity = vec2 0, 20
-    @space.gravity = gravity
+    @space.gravity = @gravity
 
     warp_player 50, 200
 
@@ -53,6 +53,6 @@ class Test < Level
 
     add_background LevelBackground.new(@window, 'background3', 1200, 300), 0, 0
 
-    add_to_space
+    init_level
   end
 end

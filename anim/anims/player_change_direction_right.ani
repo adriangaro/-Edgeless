@@ -1,9 +1,9 @@
 0
 0 default default default default default default
-40 default default default default default default
+8 default default default default default default
 1
 0 default default default default default default
-10 15,-15 5 default default default default
-20 30,-20 10 default default default default
-30 45,-15 15 default default default default
-40 60,0 20 default default default default
+2 15,-15 5 default default default default
+4 30,-20 10 default default default default
+6 45,-15 15 default default default default
+8 60,0 20 default default default default

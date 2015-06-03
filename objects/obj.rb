@@ -15,8 +15,9 @@ module Type
   JUMP_PAD = 8
   SPIKE_TOP = 9
   CAMERA = 10
+  SENSOR = 11
 
-  TYPES = 11
+  TYPES = 12
 end
 
 module Group
@@ -28,14 +29,15 @@ module Group
   MOB = 6
   WEAPON = 7
   JUMP_PAD = 8
+  SENSOR = 9
 end
 
 module Layer
   # From left to right
   # 1st Bit Border Collision
   # 2nd Bit Platform Collision
-  # 3rd Bit Camera
-  # 4th Bit -
+  # 3rd Bit Camera Collision
+  # 4th Bit Player Sensor Collision
   # 5th Bit Spring Collision
   # 6th Bit Spike Collision
   # 7th Bit Weapon Collision
@@ -50,6 +52,7 @@ module Layer
   WEAPON =           '00000010'.to_i 2
   JUMP_PAD =         '00001000'.to_i 2
   FULL_LAYER =       '11111111'.to_i 2
+  SENSOR =           '00001000'.to_i 2
 end
 
 class Obj
@@ -72,6 +75,8 @@ class Obj
       body.remove_from_space $level.space unless body.mass == Float::INFINITY
       body = nil
     end
+    @image = nil
+    @should_draw = false
   end
 
   def get_draw_param(offsetx, offsety)
@@ -112,7 +117,7 @@ class Obj
   end
 
   def level_enter_animation_do
-    @miliseconds_level -= $delta
+    @miliseconds_level -= $delta || 0
     if @miliseconds_level >= 0
       @fade_in_level = (1 - @miliseconds_level / @time_level) * 255
       150 * cubic_bezier(@miliseconds_level / @time_level)

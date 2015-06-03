@@ -50,7 +50,7 @@ class LevelBackground < Obj
     @bodies << CP::Body.new(Float::INFINITY, Float::INFINITY)
   end
 
-  def get_draw_param
+  def get_draw_param(*)
     f = 0
     min = [$level.player.bodies[0].p.x - (@shapes[0].body.p.x - 200),
            $level.player.bodies[0].p.y - (@shapes[0].body.p.y - 200),
