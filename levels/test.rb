@@ -18,8 +18,6 @@ class Test < Level
   def initialize(window)
     super window, 3000, 800
     @space.damping = 0.8
-    @gravity = vec2 0, 20
-    @space.gravity = @gravity
 
     warp_player 50, 200
 

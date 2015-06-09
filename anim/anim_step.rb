@@ -30,16 +30,12 @@ class AnimationStep
   end
 
   def do_step(shape, force_angle = 0)
-    shape.body.p += @move_vect
+    shape.body.p += @move_vect.rotate(vec2(Math.cos(force_angle),Math.sin(force_angle)))
     shape.body.a += @angle_change
     shape.layers = @layer unless @layer == -1
-
-    shape.body.apply_force_s Force.new @force.dir_vec2.rotate(vec2(Math.cos(force_angle),
-                                                                   Math.sin(force_angle))),
-                                       @force.origin_vec2
-    shape.body.apply_impulse_s Force.new @impulse.dir_vec2.rotate(vec2(Math.cos(force_angle),
-                                                                       Math.sin(force_angle))),
-                                         @impulse.origin_vec2
-    shape.body.ang_vel = @angular_velocity
+    
+    shape.body.apply_force_s Force.new @force.rotate(force_angle), @force.origin_vec2
+    shape.body.apply_impulse_s Force.new @impulse.rotate(force_angle), @impulse.origin_vec2
+    shape.body.ang_vel = @angular_velocity * $delta_factor
   end
 end

@@ -12,7 +12,7 @@ require_relative '../objects/platform_poly'
 require_relative '../utility/utility'
 
 class Level
-  attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space, :camera, :gravity
+  attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space, :camera, :width, :height
 
   def initialize(window, sizex, sizey)
     @window = window
@@ -21,7 +21,9 @@ class Level
     @objects = []
     @mobs = []
     @backgrounds = []
-    @gravity = vec2 0, 20
+
+    @width = sizex
+    @height = sizey
 
     @level_border = LevelBorder.new @window, sizex, sizey
     @objects << @level_border

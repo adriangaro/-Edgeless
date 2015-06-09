@@ -11,7 +11,8 @@ module Anims
   PLAYER = {}
   SQUARE_MOB = {}
   TRIANGLE_MOB = {}
-  KEYWORDS = { 'player' => Anims::PLAYER, 'squaremob' => Anims::SQUARE_MOB, 'trianglemob' => Anims::TRIANGLE_MOB }
+  PROJECTILE = {}
+  KEYWORDS = { 'player' => Anims::PLAYER, 'squaremob' => Anims::SQUARE_MOB, 'trianglemob' => Anims::TRIANGLE_MOB, 'projectile' => Anims::PROJECTILE }
 end
 
 def get_animation(mob, name)
@@ -52,7 +53,7 @@ def create_animations
             angle_change = arg.to_i * Math::PI / 180.0
 
           when 3
-            layer = arg.to_i 2
+            layer = eval(arg)
 
           when 4
             angular_velocity = arg.to_i * Math::PI / 180.0

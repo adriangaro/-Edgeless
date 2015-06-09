@@ -76,12 +76,18 @@ class Animation
                       step[0].impulse)
   end
 
-  def do_animation(shapes)
+  def reset
+    @finished = false
+    @started = true
+    @current_step = 0
+  end
+
+  def do_animation(shapes, force_angle = 0)
     return if @finished || !@started
     shapes.each do |shape|
       index = shapes.index(shape)
       if !@steps[index].nil?
-        @steps[index][@current_step].do_step shape
+        @steps[index][@current_step].do_step shape, force_angle
       else
         NULL_STEP.do_step shape
       end

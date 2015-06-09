@@ -18,14 +18,16 @@ class GameWindow < Gosu::Window
     initialize_camera
     add_collision_handlers
     create_animations
-    $delta = 1 / 60.0
+    @time_step = 1 / 60.0
+    $delta = @time_step
+    $delta_factor = @time_step / $delta
     @last = Time.now
-    $level.space.step 1 / 60.0
+    $level.space.step @time_step
     @start = true
   end
 
   def initialize_level
-    $level = Test.new self
+    $level = First.new self
   end
 
   def initialize_camera
@@ -53,6 +55,9 @@ class GameWindow < Gosu::Window
     $level.space.add_collision_handler Type::WEAPON,
                                        Type::MOB,
                                        SwordMobCollisionHandler.new($level)
+    $level.space.add_collision_handler Type::MOB,
+                                       Type::PLAYER,
+                                       SwordMobCollisionHandler.new($level)
     $level.space.add_collision_handler Type::PLAYER,
                                        Type::JUMP_PAD,
                                        MobJumpPadCollisionHandler.new($level)
@@ -65,26 +70,30 @@ class GameWindow < Gosu::Window
     $level.space.add_collision_handler Type::LEVEL_BORDER_BOTTOM,
                                        Type::PLAYER,
                                        MobBorderCollisionHandler.new($level)
-    $level.space.add_collision_handler Type::SENSOR,
-                                       Type::PLAYER,
-                                       PlayerSensorCollisionHandler.new($level)
     Type::TYPES.times do |x|
       $level.space.add_collision_handler Type::CAMERA,
                                          x,
                                          CameraObjectCollisionHandler.new($level)
+    end
+
+    Type::TYPES.times do |x|
+      $level.space.add_collision_handler Type::PROJECTILE,
+                                         x,
+                                         ProjectileCollisionHandler.new($level)
     end
   end
 
   def delta_time
     ret = Time.now - @last
     @last = Time.now
-    [ret, 1 / 60.0].max
+    [ret, @time_step].max
   end
 
   def update
     # RubyProf.start
     $delta = delta_time
-    $level.space.gravity = $level.gravity * 1 / 60 / $delta
+    $delta_factor = @time_step / $delta
+
     @draw_off = @camera.get_draw_offset $level
     if @start
       @start = false
@@ -97,6 +106,7 @@ class GameWindow < Gosu::Window
         mob.should_draw = false
         mob.shapes[0].body.reset_forces
         mob.do_behaviour $level.space
+        mob.do_gravity
       end
 
       $level.objects.each do |obj|
@@ -104,14 +114,14 @@ class GameWindow < Gosu::Window
       end
       $level.camera.follow_camera @draw_off.x, @draw_off.y
       $level.space.step $delta * 6
-      $level.mobs.compact!
       camera_behaviour
     end
 
     TASKS.each &:call
+    TASKS.clear
     $level.space.reindex_static
     $level.mobs.each do |mob|
-      mob.get_draw_param @draw_off.x, @draw_off.y if mob.should_draw
+      mob.get_draw_param @draw_off.x, @draw_off.y
     end
     $level.objects.each do |mob|
       mob.get_draw_param @draw_off.x, @draw_off.y

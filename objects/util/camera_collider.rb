@@ -11,7 +11,6 @@ class CameraColliderObject < Obj
     @shapes = []
     @bodies = []
     @should_draw = true
-    @image = Assets["test"]
     create_bodies
     add_shapes
     set_shapes_prop
@@ -48,7 +47,5 @@ class CameraColliderObject < Obj
     @bodies << CP::Body.new(1, 1)
   end
 
-  def draw()
-    @image.draw_rot @draw_param[0], @draw_param[1], 1, 0, 0, 0, @window.width  * 1.0 / @image.width , @window.height  * 1.0 / @image.height
-  end
+  def draw(); end
 end

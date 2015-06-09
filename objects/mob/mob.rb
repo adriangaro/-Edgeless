@@ -4,14 +4,57 @@ require 'chipmunk'
 require_relative '../../utility/utility'
 require_relative '../obj'
 require_relative '../../ai/fsm'
-MOVEMENT = 0
-BEHAVIOUR = 1
-EXTRA = 2
+
+
+module BaseHooks
+  DO_DAMAGE = lambda do |attacker, victim|
+    victim.curent_lives -= attacker.curent_dmg
+    victim.draw_health
+    TASKS << lambda do
+      victim.destroy
+      victim = nil
+    end if victim.curent_lives <= 0
+  end
+
+  PROJECTILE_HIT = lambda do |attacker, victim|
+    attack_hook(attacker.parent.shapes[0], victim.shapes[0], $level)
+  end
+
+  KNOCKBACK = lambda do |victim, attacker|
+    unless victim.knockback
+      victim.bodies[0].v = vec2(50, 0).rotate(-(attacker.bodies[0].p - victim.bodies[0].p).to_angle.radians_to_vec2) * $delta_factor
+
+      victim.knockback = true
+    end
+  end
+end
 
 class Mob < Obj
-  ATTACK_HOOKS = []
-  ATTACKED_HOOKS = []
-  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :ATTACK_HOOKS, :ATTACKED_HOOKS, :dir, :health_bar, :fsm, :agro
+  include ClassLevelInheritableAttributes
+  inheritable_attributes :attack_hooks, :attacked_hooks
+
+  MOVEMENT = 0
+  BEHAVIOUR = 1
+  EXTRA = 2
+
+  @attack_hooks = []
+  @attacked_hooks = []
+
+  class << self
+    def add_attack_hook(hook)
+      aux = @attack_hooks.dup
+      @attack_hooks = (aux << hook)
+
+
+    end
+
+    def add_attacked_hook(hook)
+      aux = @attacked_hooks.dup
+      @attacked_hooks = (aux << hook)
+    end
+  end
+
+  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :dir, :health_bar, :fsm, :knockback, :g
 
   def initialize(window)
     super window
@@ -23,7 +66,12 @@ class Mob < Obj
     @dir = 1
     draw_health
     @fsm = StackFSM.new
-    @agro = false
+    @knockback = false
+    @g = vec2 0, 500
+  end
+
+  def do_gravity
+    @bodies.each { |body| body.apply_force @g, vec2(0, 0) }
   end
 
   def warp(vect)
@@ -43,13 +91,13 @@ class Mob < Obj
   end
 
   def attacked_hook(attacker)
-    ATTACKED_HOOKS.each do |hook|
+    attacked_hooks.each do |hook|
       hook.call self, attacker
     end
   end
 
   def attack_hook(victim)
-    ATTACK_HOOKS.each do |hook|
+    attack_hooks.each do |hook|
       hook.call self, victim
     end
   end
@@ -64,7 +112,7 @@ class Mob < Obj
     end
   end
 
-  def do_animation_on_index(index)
+  def do_animation_on_index(index, force_angle = 0)
     return if @cur_anim[index].nil?
 
     @cur_anim[index].started = true unless @cur_anim[index].started
@@ -72,17 +120,17 @@ class Mob < Obj
     if @cur_anim[index].finished
       @cur_anim[index] = nil
     else
-      @cur_anim[index].do_animation @shapes
+      @cur_anim[index].do_animation @shapes, force_angle
     end
   end
 
-  def set_animation(index, anim, instant = false)
-    do_animation_on_index index if instant
+  def set_animation(index, anim, instant = false, force_angle = 0)
+    do_animation_on_index index, force_angle if instant
     @cur_anim[index] = anim if @cur_anim[index].nil?
   end
 
-  def over_write_animation(index, anim, instant = false)
-    do_animation_on_index index if instant
+  def over_write_animation(index, anim, instant = false, force_angle = 0)
+    do_animation_on_index index, force_angle if instant
     @cur_anim[index] = anim
   end
 
@@ -101,23 +149,5 @@ class Mob < Obj
     d.polygon(*draw_vertices)
     d.draw box_image
     @health_bar = Gosu::Image.new @window, box_image
-  end
-
-  def load_ail; end
-
-  module BaseHooks
-    DO_DAMAGE = lambda do |attacker, victim|
-      victim.curent_lives -= attacker.curent_dmg
-      victim.draw_health
-      TASKS << lambda do
-        victim.destroy
-      end if victim.curent_lives <= 0
-    end
-
-    KNOCKBACK = lambda do |victim, attacker|
-      victim.bodies[0].apply_impulse vec2(-2000, -2000), vec2(0, 0) if attacker.dir == -1
-
-      victim.bodies[0].apply_impulse vec2(2000, -2000), vec2(0, 0) if attacker.dir == 1
-    end
   end
 end

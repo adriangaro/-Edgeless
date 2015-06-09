@@ -4,9 +4,6 @@ require 'chipmunk'
 require_relative '../../utility/utility'
 require_relative 'mob'
 
-SUBSTEPS = 6
-SCREEN_WIDTH = 640
-SCREEN_HEIGHT = 480
 class Player < Mob
   attr_accessor :jump, :miliseconds_level
   def initialize(window)
@@ -30,7 +27,7 @@ class Player < Mob
 
     @attacking = false
     @target_angle = Math::PI / 2.0 + Math::PI / 18
-    set_stats 100, 50
+    set_stats 10000, 50
 
     @fsm.push_state -> { idle }
   end
@@ -61,7 +58,7 @@ class Player < Mob
     @shapes[1].body.a = 3 * Math::PI / 2.0 + Math::PI / 18
     @shapes[1].collision_type = Type::WEAPON
     @shapes[1].group = Group::WEAPON
-    @shapes[1].layers = Layer::WEAPON
+    @shapes[1].layers = Layer::NULL_LAYER
   end
 
   def create_bodies
@@ -84,12 +81,12 @@ class Player < Mob
   end
 
   def turn_left
-    @shapes[0].body.t -= 600.0 / SUBSTEPS
+    @shapes[0].body.t -= 600.0
     @dir = -1
   end
 
   def turn_right
-    @shapes[0].body.t += 600.0 / SUBSTEPS
+    @shapes[0].body.t += 600.0
     @dir = 1
   end
 
@@ -117,6 +114,7 @@ class Player < Mob
   end
 
   def do_behaviour(space)
+    @knockback = false
     @bodies[1].p += @bodies[0].p - @last
     @last = vec2 @bodies[0].p.x, @bodies[0].p.y
     @attacking = false if @cur_anim[1].nil?
@@ -142,15 +140,17 @@ class Player < Mob
   end
 
   def draw
-    @image.draw_rot @draw_param[0], @draw_param[1], 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3]
+    if @should_draw
+      @image.draw_rot @draw_param[0], @draw_param[1], 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3]
 
-    x = @bodies[1].p.x + draw_param[0] - @bodies[0].p.x
-    y = @bodies[1].p.y + draw_param[1] - @bodies[0].p.y
-    a = (@shapes[1].body.a + Math::PI).radians_to_gosu
-    @sword.draw_rot x, y, 2, a + 180, 0.5, 1, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255)
+      x = @bodies[1].p.x + draw_param[0] - @bodies[0].p.x
+      y = @bodies[1].p.y + draw_param[1] - @bodies[0].p.y
+      a = (@shapes[1].body.a + Math::PI).radians_to_gosu
+      @sword.draw_rot x, y, 2, a + 180, 0.5, 1, @ratio, @ratio, Gosu::Color.new(@alpha * @fade_in_level / 255.0, 255, 255, 255)
+      @health_bar.draw @draw_param[0] - 25, @draw_param[1] + 30, 2
+    end
   end
 
-  ATTACK_HOOKS << BaseHooks::DO_DAMAGE
 
   ##############################################
   #AI                                          #
@@ -196,7 +196,6 @@ class Player < Mob
 
     if @hide_time > 70
       @weapon_hidden = true
-      @shapes[1].layers = Layer::NULL_LAYER
       @alpha -= 6 if @alpha > 0
     end
 
@@ -213,7 +212,6 @@ class Player < Mob
     @hide_time = 0
 
     @weapon_hidden = false
-    @shapes[1].layers = Layer::WEAPON
     @alpha += 30 if @alpha < 255
 
     @fsm.pop_state
@@ -225,3 +223,7 @@ class Player < Mob
     end
   end
 end
+
+Player.add_attack_hook BaseHooks::DO_DAMAGE
+
+Player.add_attacked_hook BaseHooks::KNOCKBACK

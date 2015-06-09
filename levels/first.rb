@@ -17,29 +17,28 @@ require_relative '../objects/mob/triangle_mob'
 
 class First < Level
   def initialize(window)
-    super window, 2000, 480
+    super window, 2000, 800
     @space.damping = 0.8
-    @gravity = vec2 0, 20
-    @space.gravity = @gravity
+
     warp_player 120, 140
     add_object PlatformPoly.new(@window,
                                 [vec2(-50.0, 0.0),
                                  vec2(-50.0, 2000.0),
                                  vec2(0, 2000.0),
                                  vec2(0, 0)]),
-               0, 400
+               0, 600
 
-    add_object JumpPad.new(@window, 100, 45), 1800, 350
+    add_object JumpPad.new(@window, 100, 0, Gosu::Color.new(234, 156, 63)), 0, 600
 
     add_mob SquareMob.new(@window), 300, 300
 
     add_mob TriangleMob.new(@window), 400, 300
 
-    add_background LevelBackground.new(@window, 'background1', 640, 480), 0, 0
+    add_background LevelBackground.new(@window, 'background1', 640, 800), 0, 0
 
-    add_background LevelBackground.new(@window, 'background2', 560, 480), 640, 0
+    add_background LevelBackground.new(@window, 'background2', 560, 800), 640, 0
 
-    add_background LevelBackground.new(@window, 'background3', 800, 480), 1200, 0
+    add_background LevelBackground.new(@window, 'background3', 800, 800), 1200, 0
 
     init_level
   end

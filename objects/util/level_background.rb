@@ -5,7 +5,7 @@ require_relative '../../utility/utility'
 require_relative '../obj'
 
 class LevelBackground < Obj
-  attr_accessor :sizex, :sizey, :draw_img
+  attr_accessor :sizex, :sizey
   def initialize(window, name, sizex, sizey)
     @window = window
     @shapes = []

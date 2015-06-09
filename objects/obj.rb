@@ -16,8 +16,9 @@ module Type
   SPIKE_TOP = 9
   CAMERA = 10
   SENSOR = 11
+  PROJECTILE = 12
 
-  TYPES = 12
+  TYPES = 13
 end
 
 module Group
@@ -30,33 +31,37 @@ module Group
   WEAPON = 7
   JUMP_PAD = 8
   SENSOR = 9
+  PROJECTILE = 10
 end
 
 module Layer
   # From left to right
-  # 1st Bit Border Collision
-  # 2nd Bit Platform Collision
-  # 3rd Bit Camera Collision
-  # 4th Bit Player Sensor Collision
-  # 5th Bit Spring Collision
-  # 6th Bit Spike Collision
-  # 7th Bit Weapon Collision
-  # 8th Bit Background Collision
-  NULL_LAYER =       '00000000'.to_i 2
-  LEVEL_BORDER =     '10000000'.to_i 2
-  LEVEL_BACKGROUND = '00000001'.to_i 2
-  PLAYER =           '11001100'.to_i 2
-  PLATFORM =         '01000000'.to_i 2
-  SPIKE =            '00000100'.to_i 2
-  MOB =              '11001110'.to_i 2
-  WEAPON =           '00000010'.to_i 2
-  JUMP_PAD =         '00001000'.to_i 2
-  FULL_LAYER =       '11111111'.to_i 2
-  SENSOR =           '00001000'.to_i 2
+  # 1st Bit Background Collision
+  # 2nd Bit Weapon Collision
+  # 3rd Bit Spike Collision
+  # 4th Bit Jump Pad Collision
+  # 5th Bit Player Sensor Collision
+  # 6th Bit Camera Collision
+  # 7th Bit Platform Collision
+  # 8th Bit Border Collision
+  # 9th Bit Projectile Collision
+  NULL_LAYER =       '000000000'.to_i 2
+  LEVEL_BORDER =     '110000000'.to_i 2
+  LEVEL_BACKGROUND = '000000001'.to_i 2
+  PLAYER =           '111001100'.to_i 2
+  PLATFORM =         '101000000'.to_i 2
+  SPIKE =            '000000100'.to_i 2
+  MOB =              '011001110'.to_i 2
+  WEAPON =           '000000010'.to_i 2
+  JUMP_PAD =         '100001000'.to_i 2
+  FULL_LAYER =       '011111111'.to_i 2
+  SENSOR =           '000001000'.to_i 2
+  PROJECTILE =       '100000000'.to_i 2
+
 end
 
 class Obj
-  attr_accessor :shapes, :bodies, :draw_img, :should_draw, :should_be_destroyed, :draw_param
+  attr_accessor :shapes, :bodies, :should_draw, :draw_param
   def initialize(window)
     @window = window
     @should_draw = false
@@ -75,7 +80,8 @@ class Obj
       body.remove_from_space $level.space unless body.mass == Float::INFINITY
       body = nil
     end
-    @image = nil
+    $level.objects.delete self
+    $level.mobs.delete self
     @should_draw = false
   end
 
@@ -83,11 +89,10 @@ class Obj
     offsetsx = [offsetx]
     offsetsy = [offsety]
     offsetsy << level_enter_animation_do
-    x = @bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x
-    y = @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y
-    a = @bodies[0].a.radians_to_gosu
-    color = Gosu::Color.new @fade_in_level, 255, 255, 255
-    @draw_param = [x, y, a, color]
+    @draw_param = [@bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x,
+                   @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y,
+                   @bodies[0].a.radians_to_gosu,
+                   Gosu::Color.new(@fade_in_level, 255, 255, 255)]
   end
 
   def warp(vect)

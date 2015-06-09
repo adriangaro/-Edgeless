@@ -24,28 +24,28 @@ class LevelBorder < Obj
 
   def add_shapes
     @shapes << CP::Shape::Poly.new(@bodies[0],
-                                   [vec2(20.0, -20.0),
-                                    vec2(-@sizey - 20.0, -20.0),
-                                    vec2(-@sizey - 20.0, 0.0),
-                                    vec2(20.0, 0.0)],
+                                   [vec2(100.0, -100.0),
+                                    vec2(-@sizey - 100.0, -100.0),
+                                    vec2(-@sizey - 100.0, 0.0),
+                                    vec2(100.0, 0.0)],
                                    vec2(0, 0))
     @shapes << CP::Shape::Poly.new(@bodies[0],
-                                   [vec2(20.0, -20.0),
-                                    vec2(0.0, -20.0),
-                                    vec2(0.0, @sizex + 20.0),
-                                    vec2(20.0, @sizex + 20.0)],
+                                   [vec2(100.0, -100.0),
+                                    vec2(0.0, -100.0),
+                                    vec2(0.0, @sizex + 100.0),
+                                    vec2(100.0, @sizex + 100.0)],
                                    vec2(0, 0))
     @shapes << CP::Shape::Poly.new(@bodies[0],
-                                   [vec2(20.0, @sizex),
-                                    vec2(-@sizey - 20.0, @sizex),
-                                    vec2(-@sizey - 20.0, @sizex + 20.0),
-                                    vec2(20.0, @sizex + 20.0)],
+                                   [vec2(100.0, @sizex),
+                                    vec2(-@sizey - 100.0, @sizex),
+                                    vec2(-@sizey - 100.0, @sizex + 100.0),
+                                    vec2(100.0, @sizex + 100.0)],
                                    vec2(0, 0))
     @shapes << CP::Shape::Poly.new(@bodies[0],
-                                   [vec2(-@sizey, -20.0),
-                                    vec2(-@sizey - 20.0, -20.0),
-                                    vec2(-@sizey - 20.0, @sizex + 20.0),
-                                    vec2(-@sizey, @sizex + 20.0)],
+                                   [vec2(-@sizey, -100.0),
+                                    vec2(-@sizey - 100.0, -100.0),
+                                    vec2(-@sizey - 100.0, @sizex + 100.0),
+                                    vec2(-@sizey, @sizex + 100.0)],
                                    vec2(0, 0))
   end
 

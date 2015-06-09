@@ -28,15 +28,31 @@ class Force
     @dir_vec2 = dir
     @origin_vec2 = origin
   end
+
+  def *(scalar)
+    @dir_vec2 *= scalar
+  end
+
+  def /(scalar)
+    @dir_vec2 /= scalar
+  end
+
+  def rotate(angle)
+    @dir_vec2.rotate(angle.radians_to_vec2)
+  end
+
+  def rotate!(angle)
+    @dir_vec2 = @dir_vec2.rotate(angle.radians_to_vec2)
+  end
 end
 
 class CP::Body
   def apply_force_s(force)
-    apply_force force.dir_vec2, force.origin_vec2
+    apply_force force.dir_vec2 * $delta_factor, force.origin_vec2
   end
 
   def apply_impulse_s(impulse)
-    apply_impulse impulse.dir_vec2, impulse.origin_vec2
+    apply_impulse impulse.dir_vec2 * $delta_factor, impulse.origin_vec2
   end
 end
 
@@ -83,6 +99,37 @@ def attack_hook(attacker_shape, victim_shape, level)
   attacker = get_object_from_shape attacker_shape, level
   victim = get_object_from_shape victim_shape, level
 
-  attacker.attack_hook victim unless victim.nil?
-  victim.attacked_hook attacker unless victim.nil?
+  victim.class.attacked_hooks.each do |hook|
+    hook.call victim, attacker
+  end
+
+  attacker.class.attack_hooks.each do |hook|
+    hook.call attacker, victim
+  end
+end
+
+module ClassLevelInheritableAttributes
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
+  module ClassMethods
+    def inheritable_attributes(*args)
+      @inheritable_attributes ||= [:inheritable_attributes]
+      @inheritable_attributes += args
+      args.each do |arg|
+        class_eval %(
+          class << self; attr_accessor :#{arg} end
+        )
+      end
+      @inheritable_attributes
+    end
+
+    def inherited(subclass)
+      @inheritable_attributes.each do |inheritable_attribute|
+        instance_var = "@#{inheritable_attribute}"
+        subclass.instance_variable_set(instance_var, instance_variable_get(instance_var))
+      end
+    end
+  end
 end

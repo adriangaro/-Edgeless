@@ -5,7 +5,7 @@ require_relative '../objects/mob/player'
 require_relative '../objects/obj'
 require_relative 'utility'
 
-MOBS = {'player' => Player, 'square_mob' => SquareMob}
+MOBS = { 'player' => Player, 'square_mob' => SquareMob, 'triangle_mob' => TriangleMob }
 
 COMMANDS = {'spawn' => [lambda do |args, window, level|
                           if args[0][-1] == '?'
@@ -19,7 +19,7 @@ COMMANDS = {'spawn' => [lambda do |args, window, level|
                           else
                             amount = 1
                             amount = [Integer(args[4]), amount].max unless args[4].nil?
-                            fail if amount > 600
+                            fail if amount > 300
                             amount.times do
                               mob = MOBS[args[1]].new window
                               mob.warp vec2(Float(args[2]), Float(args[3]))
@@ -28,7 +28,7 @@ COMMANDS = {'spawn' => [lambda do |args, window, level|
                             end
                           end
                         end,
-                        "Spawns mobs into level.\n\tUsage: spawn <mob_name : string> <x : float> <y : float> <amount <= 600 : int>."],
+                        "Spawns mobs into level.\n\tUsage: spawn <mob_name : string> <x : float> <y : float> <amount <= 300 : int>."],
             'help' => [lambda do |args, window, level|
                          puts 'List of commands:'
                          COMMANDS.each do |key, value|

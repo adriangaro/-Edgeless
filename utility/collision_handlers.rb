@@ -44,6 +44,41 @@ class SwordMobCollisionHandler
   end
 end
 
+class MobPlayerCollisionHandler
+  def initialize(level)
+    @level = level
+  end
+
+  def begin(a, b, _arbiter)
+    attack_hook(a, b, @level)
+    true
+  end
+
+  def pre_solve(a, b, _arbiter)
+    attack_hook(a, b, @level)
+    true
+  end
+end
+
+class ProjectileCollisionHandler
+  def initialize(level)
+    @level = level
+  end
+
+  def begin(a, b, _arbiter)
+    attack_hook(a, b, @level) if get_object_from_shape(b, @level).class == Player
+    true
+  end
+
+  def pre_solve(a, b)
+    attack_hook(a, b, @level) if get_object_from_shape(b, @level).class == Player
+    TASKS << lambda do
+      get_object_from_shape(a, @level).destroy
+    end
+    false
+  end
+end
+
 # Collision between Player and Jump Pad
 class MobJumpPadCollisionHandler
   def initialize(level)
@@ -74,26 +109,6 @@ class MobBorderCollisionHandler
   end
 end
 
-class PlayerSensorCollisionHandler
-  def initialize(level)
-    @level = level
-  end
-
-  def begin(a, _b, _arbiter)
-    @obj = get_object_from_shape a, @level
-    @object_id = @obj.object_id
-    @obj.agro = true
-    true
-  end
-
-  def separate
-    @obj = ObjectSpace._id2ref @object_id unless @object_id.nil?
-    @obj.agro = false unless @obj.nil?
-    @obj = nil
-    @object_id = nil
-  end
-end
-
 class CameraObjectCollisionHandler
   def initialize(level)
     @level = level
@@ -111,12 +126,5 @@ class CameraObjectCollisionHandler
     @object_id = @obj.object_id
     @obj.should_draw = true unless @obj.nil?
     true
-  end
-
-  def separate
-    @obj = ObjectSpace._id2ref @object_id unless @object_id.nil?
-    @obj.should_draw = false unless @obj.nil?
-    @obj = nil
-    @object_id = nil
   end
 end
