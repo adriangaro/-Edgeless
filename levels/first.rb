@@ -40,7 +40,7 @@ class First < Level
 
     add_background LevelBackground.new(@window, 'background3', 800, 800), 1200, 0
 
-    add_trigger SummonTrigger.new(700, 600, [[SquareMob, 5], [TriangleMob, 2], [SquareMob, 2]], 300, 100, 30, "Bravo Fa!", false, 'sec'), :summon_1
+    add_trigger SummonTrigger.new(700, 600, [[SquareMob, 5], [TriangleMob, 2], [SquareMob, 2]], 300, 100, 30, "Bravo Fa!", true, 'prin'), :summon_1
 
     add_trigger MoveTrigger.new(300, 600, 100, "Venisi fa aici cum sa nu vii!", true, 'prin'), :move_1
 
