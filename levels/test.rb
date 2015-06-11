@@ -41,7 +41,7 @@ class Test < Level
                                  vec2(0, 0)]),
                0, 450
 
-    add_object JumpPad.new(@window, 150, 0, Gosu::Color.new(234, 156, 63)), 400, 750
+    add_object JumpPad.new(@window, 150, 0, Assets[0xff_ea9c3f, :color]), 400, 750
 
     add_mob SquareMob.new(@window), 900, 500
 

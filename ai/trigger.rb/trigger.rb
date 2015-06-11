@@ -1,3 +1,0 @@
-class Trigger
-
-end

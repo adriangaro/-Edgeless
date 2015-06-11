@@ -1,19 +1,42 @@
 require 'gosu'
 require 'chipmunk'
+require 'texplay'
 
 class Assets
   @textures = {}
+  @fonts = {}
+  @colors = {}
+
   class << self
-    def load(window, images)
+    attr_accessor :textures, :fonts, :colors, :full_health_bar
+    def load_textures(window, images)
       images.each do |key, value|
         @textures[key] = Gosu::Image.new window, value
       end
     end
 
-    def [](key)
-      @textures[key]
+    def load_fonts(window, fonts)
+      fonts.each do |key, value|
+        @fonts[key] = Gosu::Font.new window, value, 100
+      end
+    end
+
+    def [](key, which)
+      return @textures[key] if which == :texture
+      return @fonts[key] if which == :font
+      if which == :color
+        register_color(key)
+        return @colors[key]
+      end
+    end
+
+    def register_color(key)
+      @colors[key] ||= Gosu::Color.new(key)
     end
   end
+
+
+
 end
 
 class Numeric
@@ -60,8 +83,12 @@ def vec2(x, y)
   CP::Vec2.new x, y
 end
 
-def sigmoid(t)
+def sigmoid_camera(t)
   1 / (1 + Math::E ** (-(2 * t - 1) * 5))
+end
+
+def sigmoid_text(t)
+  1 + -1 / (1 + Math::E ** (-(2 * (t * 2 - 1).abs - 1) * 12))
 end
 
 def cubic_bezier(t , a = 1, b = 0.5, c = 2, d = 0)
@@ -101,11 +128,11 @@ def attack_hook(attacker_shape, victim_shape, level)
 
   victim.class.attacked_hooks.each do |hook|
     hook.call victim, attacker
-  end
+  end unless victim.nil? && attacker.nil?
 
   attacker.class.attack_hooks.each do |hook|
     hook.call attacker, victim
-  end
+  end unless victim.nil? && attacker.nil?
 end
 
 module ClassLevelInheritableAttributes
@@ -132,4 +159,19 @@ module ClassLevelInheritableAttributes
       end
     end
   end
+end
+
+class String
+  def to_bool
+    case
+    when self == true || self =~ /^(true|t|yes|y|1)$/i
+      true
+    when self == false || self.nil? || self =~ /^(false|f|no|n|0)$/i
+      false
+    else
+      raise ArgumentError.new "invalid value for Boolean: '#{self}'"
+    end
+  end
+
+  alias :to_b :to_bool
 end

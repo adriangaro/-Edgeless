@@ -10,9 +10,9 @@ require_relative 'mob'
 class TriangleMob < Mob
   def initialize(window)
     super window
-    @image = Assets['triangle_mob']
-    @eyes = Assets['triangle_mob_eyes']
-    @wing = Assets['triangle_mob_wing']
+    @image = Assets['triangle_mob', :texture]
+    @eyes = Assets['triangle_mob_eyes', :texture]
+    @wing = Assets['triangle_mob_wing', :texture]
     @window = window
 
     @ratio = 50.0 / @image.width
@@ -69,7 +69,9 @@ class TriangleMob < Mob
     @shapes[2].layers = Layer::MOB
   end
 
-  def do_gravity; end
+  def do_gravity
+    @bodies.each { |body| body.apply_force @g, vec2(0, 0) } if !@active
+  end
 
   def create_bodies
     @bodies << CP::Body.new(30, Float::INFINITY)
@@ -81,12 +83,13 @@ class TriangleMob < Mob
     @shapes[0].body.p = vect
     @shapes[1].body.p = vect + vec2(-15, -10)
     @shapes[2].body.p = vect + vec2(15, -10)
+    @init_pos = vect
   end
 
   def do_behaviour(space)
     @knockback = false
     dist = @bodies[0].p.distsq($level.player.bodies[0].p)
-    @agro = dist < 1000000
+    @agro = dist < 1000000 && $level.player.curent_lives > 0
     @bodies[1].p = @bodies[0].p + vec2(-15, -10)
     @bodies[2].p = @bodies[0].p + vec2(15, -10)
     set_animation EXTRA, get_animation('trianglemob', 'wingsanim').dup, true
@@ -112,9 +115,10 @@ class TriangleMob < Mob
 
   def draw()
     if @should_draw
+      super
       @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, @draw_param[5]
 
-      @eyes.draw_rot @draw_param[0] + 1, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, @draw_param[5]
+      @eyes.draw_rot @draw_param[0] + 1, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio, @ratio, @draw_param[5] if @active
 
       @wing.draw_rot @draw_param[0] - 15, @draw_param[1] - 10, 1, @draw_param[3], 1, 1, @ratio, @ratio, @draw_param[5]
 
@@ -130,16 +134,10 @@ class TriangleMob < Mob
   ##############################################
 
   def idle
+    @active = false
     if @agro
+      @active = true
       @fsm.push_state -> { chase_player }
-      return
-    end
-    random = Random.new
-    if random.rand(20) == 1
-      distx = random.rand(600) - 300
-      disty = random.rand(600) - 300
-      @destination = @bodies[0].p + vec2(distx, disty)
-      @fsm.push_state -> { wonder }
       return
     end
   end
@@ -148,7 +146,7 @@ class TriangleMob < Mob
     set_animation MOVEMENT, get_animation('trianglemob', 'move').dup, true, ($level.player.bodies[0].p - @bodies[0].p).to_angle
     @dir = 1
 
-    if @bodies[0].p.distsq($level.player.bodies[0].p) < 90000
+    if @bodies[0].p.distsq($level.player.bodies[0].p) < 160000 && @agro
       @fsm.push_state -> { attack_player }
       return
     end
@@ -160,10 +158,11 @@ class TriangleMob < Mob
   end
 
   def attack_player
-    set_animation MOVEMENT, get_animation('trianglemob', 'move').dup, true, 3 * Math::PI / 2 if ($level.player.bodies[0].p.y - @bodies[0].p.y) < 200
+    a = Random.new.rand - 1
+    set_animation MOVEMENT, get_animation('trianglemob', 'move').dup, true, 3 * Math::PI / 2 + a * Math::PI / 4 if ($level.player.bodies[0].p.y - @bodies[0].p.y) < 200
     @last_time += 1
-    Projectile.new(@window, get_animation('projectile', 'line').dup, ($level.player.bodies[0].p - @bodies[0].p).to_angle, Assets['triangle_mob_projectile'], 10, @bodies[0].p.x, @bodies[0].p.y, self) if @last_time % 90 == 0
-    if @bodies[0].p.distsq($level.player.bodies[0].p) > 90000
+    Projectile.new(@window, get_animation('projectile', 'line').dup, ($level.player.bodies[0].p - @bodies[0].p).to_angle, Assets['triangle_mob_projectile', :texture], 10, @bodies[0].p.x, @bodies[0].p.y, self) if @last_time % 60 == 0
+    if @bodies[0].p.distsq($level.player.bodies[0].p) > 160000 || !@agro
       @fsm.pop_state
       @last_time = 0
       return
@@ -173,7 +172,7 @@ class TriangleMob < Mob
   def wonder
     over_write_animation MOVEMENT, get_animation('trianglemob', 'move').dup, true, (@destination - @bodies[0].p).to_angle
 
-    @fsm.pop_state if @destination.distsq(@bodies[0].p) < 400 || @agro ||
+    @fsm.pop_state if @destination.distsq(@bodies[0].p) < 100 || @agro ||
                       @destination.x > 0 || @destination.y > 0 ||
                       @destination.x < $level.width || @destination.y < $level.height
   end

@@ -11,7 +11,7 @@ class LevelBackground < Obj
     @shapes = []
     @bodies = []
     @should_draw = true
-    @image = Assets[name]
+    @image = Assets[name, :texture]
 
     @sizex = sizex
     @sizey = sizey

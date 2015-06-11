@@ -1,5 +1,6 @@
 require 'gosu'
 require 'chipmunk'
+require 'texplay'
 
 require_relative '../../utility/utility'
 require_relative '../obj'
@@ -12,6 +13,7 @@ module BaseHooks
     victim.draw_health
     TASKS << lambda do
       victim.destroy
+      victim.call_trigger :dead
       victim = nil
     end if victim.curent_lives <= 0
   end
@@ -44,8 +46,6 @@ class Mob < Obj
     def add_attack_hook(hook)
       aux = @attack_hooks.dup
       @attack_hooks = (aux << hook)
-
-
     end
 
     def add_attacked_hook(hook)
@@ -54,7 +54,7 @@ class Mob < Obj
     end
   end
 
-  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :dir, :health_bar, :fsm, :knockback, :g
+  attr_accessor :cur_anim, :lives, :dmg, :curent_lives, :curent_dmg, :dir, :health_bar, :fsm, :knockback, :g, :active
 
   def initialize(window)
     super window
@@ -68,6 +68,7 @@ class Mob < Obj
     @fsm = StackFSM.new
     @knockback = false
     @g = vec2 0, 500
+    @active = true
   end
 
   def do_gravity
@@ -135,19 +136,14 @@ class Mob < Obj
   end
 
   def draw
-    @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0, 0
-    draw_health
+    unless @trigger.nil?
+      @trigger.mob_targeter.draw_rot(draw_param[0], draw_param[1] - 40, 2, 0, 0.5, 0.5, @trigger.mob_targeter_ratio, @trigger.mob_targeter_ratio)  if @trigger.shown
+    end
   end
 
   def draw_health
-    box_image = Magick::Image.new(50, 10) { self.background_color = '#c1131d'}
-    d = Magick::Draw.new
-    vertices = [vec2(0, 0), vec2(50.0 * @curent_lives / @lives, 0), vec2(50 * @curent_lives / @lives, 10), vec2(0, 10)]
-    draw_vertices = vertices.map { |v| [v.x, v.y] }.flatten
-    d.stroke '#6ab60b'
-    d.fill '#6ab60b'
-    d.polygon(*draw_vertices)
-    d.draw box_image
-    @health_bar = Gosu::Image.new @window, box_image
+    @health_bar ||= TexPlay.create_blank_image @window, 50, 10, :color => Assets[0xff_6ab60b, :color]
+    @health_bar.rect 0, 0, 50.0, 10, :color => Assets[0xff_c1131d, :color], :fill => true
+    @health_bar.rect 0, 0, 50.0 * @curent_lives / @lives, 10, :color => Assets[0xff_6ab60b, :color], :fill => true unless @curent_lives == Float::INFINITY
   end
 end

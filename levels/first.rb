@@ -28,7 +28,7 @@ class First < Level
                                  vec2(0, 0)]),
                0, 600
 
-    add_object JumpPad.new(@window, 100, 0, Gosu::Color.new(234, 156, 63)), 0, 600
+    add_object JumpPad.new(@window, 100, 0, Assets[0xff_ea9c3f, :color]), 0, 600
 
     add_mob SquareMob.new(@window), 300, 300
 
@@ -40,6 +40,14 @@ class First < Level
 
     add_background LevelBackground.new(@window, 'background3', 800, 800), 1200, 0
 
+    add_trigger SummonTrigger.new(700, 600, [[SquareMob, 5], [TriangleMob, 2], [SquareMob, 2]], 300, 100, 30, "Bravo Fa!", false, 'sec'), :summon_1
+
+    add_trigger MoveTrigger.new(300, 600, 100, "Venisi fa aici cum sa nu vii!", true, 'prin'), :move_1
+
+    add_trigger KillTrigger.new([@mobs[1], @mobs[2]], "Killed targets!", true, 'prin'), :kill_1
+
+    @triggers[:summon_1].add_child(@triggers[:kill_1])
+    @triggers[:move_1].add_child(@triggers[:summon_1])
     init_level
   end
 end

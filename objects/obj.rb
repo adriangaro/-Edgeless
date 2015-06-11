@@ -61,7 +61,7 @@ module Layer
 end
 
 class Obj
-  attr_accessor :shapes, :bodies, :should_draw, :draw_param
+  attr_accessor :shapes, :bodies, :should_draw, :draw_param, :trigger
   def initialize(window)
     @window = window
     @should_draw = false
@@ -69,6 +69,15 @@ class Obj
     @shapes = []
     @bodies = []
     level_enter_animation_init
+  end
+
+  def add_trigger(trigger)
+    @trigger = trigger
+  end
+
+  def call_trigger(status)
+    return if @trigger.nil?
+    @trigger.call_from_object self, status
   end
 
   def destroy
@@ -89,10 +98,11 @@ class Obj
     offsetsx = [offsetx]
     offsetsy = [offsety]
     offsetsy << level_enter_animation_do
+    color = (@fade_in_level + 1) * 256 * 256 * 256 - 1
     @draw_param = [@bodies[0].p.x - draw_offsets(offsetsx, offsetsy).x,
                    @bodies[0].p.y - draw_offsets(offsetsx, offsetsy).y,
                    @bodies[0].a.radians_to_gosu,
-                   Gosu::Color.new(@fade_in_level, 255, 255, 255)]
+                   Assets[color, :color]]
   end
 
   def warp(vect)
@@ -124,7 +134,7 @@ class Obj
   def level_enter_animation_do
     @miliseconds_level -= $delta || 0
     if @miliseconds_level >= 0
-      @fade_in_level = (1 - @miliseconds_level / @time_level) * 255
+      @fade_in_level = Integer((1 - @miliseconds_level / @time_level) * 255) if @miliseconds_level > 0 &&   @miliseconds_level < @time_level
       150 * cubic_bezier(@miliseconds_level / @time_level)
     else
       0

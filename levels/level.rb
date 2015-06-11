@@ -10,9 +10,13 @@ require_relative '../objects/util/level_border'
 require_relative '../objects/util/camera_collider'
 require_relative '../objects/platform_poly'
 require_relative '../utility/utility'
+require_relative '../trigger/trigger'
+require_relative '../trigger/summon_trigger'
+require_relative '../trigger/move_trigger'
+require_relative '../trigger/kill_trigger'
 
 class Level
-  attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space, :camera, :width, :height
+  attr_accessor :objects, :mobs, :backgrounds, :player, :level_border, :space, :camera, :width, :height, :triggers
 
   def initialize(window, sizex, sizey)
     @window = window
@@ -21,7 +25,7 @@ class Level
     @objects = []
     @mobs = []
     @backgrounds = []
-
+    @triggers = {}
     @width = sizex
     @height = sizey
 
@@ -43,7 +47,14 @@ class Level
     dir.each do |path|
       images[path.split('/').last.split('.').first] = path
     end
-    Assets.load(window, images)
+    Assets.load_textures(window, images)
+
+    dir = Dir['resources/fonts/*.ttf']
+    fonts = {}
+    dir.each do |path|
+      fonts[path.split('/').last.split('.').first] = path
+    end
+    Assets.load_fonts(window, fonts)
   end
 
   def warp_player(x, y)
@@ -53,6 +64,11 @@ class Level
   def add_object(obj, x, y)
     @objects << obj
     obj.warp vec2 x, y
+  end
+
+  def add_trigger(trigger, key)
+
+    @triggers[key] = trigger
   end
 
   def add_mob(mob, x, y)

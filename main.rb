@@ -9,8 +9,11 @@ require_all 'anim'
 
 MAIN_PATH = File.expand_path(File.dirname(__FILE__))
 TASKS ||= []
+MESSAGE_TASKS ||= []
+DRAW_TASKS ||= []
 
 class GameWindow < Gosu::Window
+  attr_accessor :camera
   def initialize
     super Gosu::screen_width, Gosu::screen_height, false
     self.caption = 'Edgeless'
@@ -100,6 +103,7 @@ class GameWindow < Gosu::Window
       start_console_thread self, $level
     end
     if $level.player.miliseconds_level < 0
+      $level.triggers.each { |key, value| value.call_trigger}
       add_keyboard_controls
 
       $level.mobs.each do |mob|
@@ -119,6 +123,14 @@ class GameWindow < Gosu::Window
 
     TASKS.each &:call
     TASKS.clear
+
+    MESSAGE_TASKS.each do |arr|
+      arr[2].alpha = 255.0 * sigmoid_text(arr[1] * 1.0 / arr[3])
+      arr[1] -= 1
+      MESSAGE_TASKS.delete arr if arr[1] == 0
+      break
+    end
+
     $level.space.reindex_static
     $level.mobs.each do |mob|
       mob.get_draw_param @draw_off.x, @draw_off.y
@@ -129,11 +141,6 @@ class GameWindow < Gosu::Window
     $level.backgrounds.each do |mob|
       mob.get_draw_param
     end
-    # result = RubyProf.stop
-    #
-    # # Print a flat profile to text
-    # printer = RubyProf::FlatPrinter.new(result)
-    # printer.print(STDOUT)
   end
 
   def camera_behaviour
@@ -148,7 +155,7 @@ class GameWindow < Gosu::Window
     end
 
     if @miliseconds > 0
-      @offset = @old_point * (1 - sigmoid((@time - @miliseconds) / @time)) + @new_point * sigmoid((@time - @miliseconds) / @time)
+      @offset = @old_point * (1 - sigmoid_camera((@time - @miliseconds) / @time)) + @new_point * sigmoid_camera((@time - @miliseconds) / @time)
       @miliseconds -= $delta * 1000
     else
       @offset = @new_point if @camera.moving
@@ -188,6 +195,9 @@ class GameWindow < Gosu::Window
     $level.backgrounds.each do |background|
       background.draw
     end
+    MESSAGE_TASKS.each { |arr| arr[0].call arr[2]; break }
+    DRAW_TASKS.each &:call
+    DRAW_TASKS.clear
   end
 end
 

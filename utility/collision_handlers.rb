@@ -73,7 +73,7 @@ class ProjectileCollisionHandler
   def pre_solve(a, b)
     attack_hook(a, b, @level) if get_object_from_shape(b, @level).class == Player
     TASKS << lambda do
-      get_object_from_shape(a, @level).destroy
+      get_object_from_shape(a, @level).destroy unless get_object_from_shape(a, @level).nil?
     end
     false
   end

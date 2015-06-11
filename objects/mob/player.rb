@@ -8,8 +8,9 @@ class Player < Mob
   attr_accessor :jump, :miliseconds_level
   def initialize(window)
     super window
-    @image = Assets['player']
-    @sword = Assets['sword']
+    @image = Assets['player', :texture]
+    @sword = Assets['sword', :texture]
+    @eyes = Assets['player_eyes', :texture]
 
     @diameter = 50
 
@@ -20,7 +21,6 @@ class Player < Mob
     @hide_time = 0
     @weapon_hidden = false
     @alpha = 255
-
     @init_pos = []
 
     @dir = 1
@@ -59,6 +59,7 @@ class Player < Mob
     @shapes[1].collision_type = Type::WEAPON
     @shapes[1].group = Group::WEAPON
     @shapes[1].layers = Layer::NULL_LAYER
+    @shapes[1].sensor = true
   end
 
   def create_bodies
@@ -141,7 +142,9 @@ class Player < Mob
 
   def draw
     if @should_draw
+      super
       @image.draw_rot @draw_param[0], @draw_param[1], 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3]
+      @eyes.draw_rot @draw_param[0] + 5 * @dir, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3]
 
       x = @bodies[1].p.x + draw_param[0] - @bodies[0].p.x
       y = @bodies[1].p.y + draw_param[1] - @bodies[0].p.y
@@ -161,6 +164,7 @@ class Player < Mob
       rnd = Random.new
       x = rnd.rand(3000)
       if x == 1
+        @active = true
         set_animation EXTRA, get_animation('player', 'leftidle1').dup if @dir == -1
         set_animation EXTRA, get_animation('player', 'rightidle1').dup if @dir == 1
       end
@@ -169,6 +173,7 @@ class Player < Mob
     if (@dir == 1 && @bodies[1].a < 3 * Math::PI / 2 && !@weapon_hidden) ||
        (@dir == -1 && @bodies[1].a > 3 * Math::PI / 2 && !@weapon_hidden)
       @fsm.push_state -> { change_dir }
+      @active = true
       return
     end
 
@@ -177,6 +182,7 @@ class Player < Mob
       return
     else
       @fsm.push_state -> { show_weapon }
+      @active = true
       return
     end
   end
@@ -195,6 +201,7 @@ class Player < Mob
     @hide_time += 1
 
     if @hide_time > 70
+      @active = false
       @weapon_hidden = true
       @alpha -= 6 if @alpha > 0
     end

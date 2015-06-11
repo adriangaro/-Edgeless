@@ -12,8 +12,8 @@ class SquareMob < Mob
   def initialize(window)
     super window
     @window = window
-    @image = Assets['square_mob']
-    @eyes = Assets['square_mob_eyes']
+    @image = Assets['square_mob', :texture]
+    @eyes = Assets['square_mob_eyes', :texture]
     @where = 'start'
     @last = vec2 0, 0
     @ratio = 50.0 / @image.width
@@ -65,7 +65,7 @@ class SquareMob < Mob
 
   def do_behaviour(space)
     @knockback = false
-    @agro = @bodies[0].p.distsq($level.player.bodies[0].p) < 640000
+    @agro = @bodies[0].p.distsq($level.player.bodies[0].p) < 640000 && $level.player.curent_lives > 0
 
     @fsm.update
   end
@@ -76,8 +76,9 @@ class SquareMob < Mob
 
   def draw
     if @should_draw
+      super
       @image.draw_rot @draw_param[0], @draw_param[1], 1, @draw_param[2], 0.5, 0.5, @ratio, @ratio, @draw_param[3]
-      @eyes.draw_rot @draw_param[0] + 5 * @dir, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3] if @agro
+      @eyes.draw_rot @draw_param[0] + 5 * @dir, @draw_param[1] - 5, 1, 0, 0.5, 0.5, @ratio * @dir, @ratio, @draw_param[3] if @active
       @health_bar.draw @draw_param[0] - 25, @draw_param[1] + 30, 2
     else
       level_enter_animation_init
@@ -89,15 +90,10 @@ class SquareMob < Mob
   ##############################################
 
   def idle
+    @active = false
     if @agro
       @fsm.push_state -> { chase_player }
-      return
-    end
-
-    if Random.new.rand(30) == 1
-      dist = Random.new.rand(40000)
-      @destination = @bodies[0].p + vec2(Math.sqrt(dist), 0)
-      @fsm.push_state -> { wonder }
+      @active = true
       return
     end
   end
@@ -110,16 +106,16 @@ class SquareMob < Mob
       set_animation MOVEMENT, get_animation('squaremob', 'left').dup, true
       @dir = -1
     end
-    if $level.player.curent_lives <= 0 || !@agro
+    unless @agro
       @fsm.pop_state
       return
     end
   end
 
   def wonder
-    @fsm.pop_state if @destination.distsq(@bodies[0].p) < 400 ||
+    @fsm.pop_state if @destination.distsq(@bodies[0].p) < 10 ||
                       @destination.x > 0 || @destination.y > 0 ||
-                      @destination.x < $level.width || @destination.y < $level.height
+                      @destination.x < $level.width || @destination.y < $level.height || @agro
 
     if @destination.x - @bodies[0].p.x > 0
       set_animation MOVEMENT, get_animation('squaremob', 'right').dup, true
